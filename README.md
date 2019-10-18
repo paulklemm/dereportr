@@ -16,10 +16,13 @@ install.packages("nfRNAseqDESeq2")
 
 ## Example
 
-This is a basic example which shows you how to solve a common problem:
+In order to run the DE pipeline, you need to specify a json file with group assignments for each sample, e.g.:
 
-``` r
-library(nfRNAseqDESeq2)
-## basic example code
+```json
+{
+  "groups": {
+    "scrmbl": ["K002000135_65089", "K002000135_65095", "K002000135_65101"],
+    "shMFF": ["K002000135_65083", "K002000135_65091", "K002000135_65099"]
+  }
+}
 ```
-

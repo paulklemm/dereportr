@@ -1,0 +1,157 @@
+---
+title: "Differential Gene Expression Analysis based on Salmon output of nf-core RNASeq pipeline."
+output:
+  html_notebook:
+    toc: yes
+    toc_float: yes
+    code_folding: hide
+params:
+  path_config_json: ""
+  path_salmon_counts: ""
+---
+
+```{r setup}
+library(magrittr)
+```
+
+https://4va.github.io/biodatasci/r-rnaseq-airway.html
+
+## Prepare DESeq2 Data Import
+
+```{r load_data}
+
+settings <- jsonlite::read_json(params$path_config_json)
+count_data <- readr::read_csv(params$path_salmon_counts)
+
+# settings <- jsonlite::read_json("/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json")
+# count_data <- readr::read_csv("/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv")
+```
+
+We need to prepare the `colData` table required by DESeq2 to determine the experiment design.
+
+```{r prepare_data}
+
+# Make empty tibble
+col_data <- tibble::tibble()
+
+# Iterate over group names and create treatment column
+settings$groups %>%
+  names() %>%
+  purrr::walk(function(group_name) {
+    coldata_group <- tibble::tibble(
+      sample_name = settings$groups[group_name] %>% unlist(),
+      treatment = group_name
+    )
+    # Attach rows to col_data tibble
+    col_data <<- col_data %>%
+      dplyr::bind_rows(coldata_group)
+  })
+
+# The order in coldata must be the same as in count_data
+# We achieve this by joining based on the id in count_data
+col_data <- tibble::tibble(
+  id = count_data %>%
+    # Get column names
+    colnames() %>%
+    # Remove "gene_id" column which is the first one
+    .[2:length(.)]
+) %>%
+  dplyr::left_join(
+    col_data,
+    by = c("id" = "sample_name")
+  )
+
+```
+
+```{r check_tables}
+# Check if we have samples in count table that we do not have a treatment for
+undefined_samples <- col_data %>%
+  dplyr::filter(
+    is.na(treatment)
+  )
+
+undefined_samples$id %>%
+  purrr::walk(function(na_sample) {
+    paste0("Removed sample ", na_sample, " because it was assigned to no treatment group in the JSON file") %>%
+      warning()
+    count_data <<- count_data %>%
+      dplyr::select(-dplyr::contains(na_sample))
+    }
+  )
+
+col_data %<>%
+  dplyr::filter(!is.na(treatment))
+
+# Convert counts to integer to comply with DEseq2 standards
+count_data %<>%
+  dplyr::mutate_if(is.double, round) %>%
+  dplyr::mutate_if(is.double, as.integer)
+
+```
+
+Here are the top entries of the count table as well as the experiment design table.
+
+```{r print_tables}
+
+count_data %>%
+  head() %>%
+  knitr::kable()
+
+col_data %>%
+  knitr::kable()
+
+```
+
+## Create DESeq2 Data and run DE
+
+```{r create_deseq2_data}
+
+deseq_data <- DESeq2::DESeqDataSetFromMatrix(
+  countData = count_data %>% as.data.frame(),
+  colData = col_data,
+  design = ~treatment,
+  tidy = TRUE
+)
+
+```
+
+```{r run_differential_expression_analysis, cache = TRUE}
+
+deseq_result <- DESeq2::DESeq(deseq_data)
+deseq_result_frame <- DESeq2::results(
+    deseq_result,
+    tidy = TRUE
+  ) %>%
+  tibble::as_tibble()
+
+```
+
+There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
+
+```{r print_de_entries}
+
+deseq_result_frame %>%
+  dplyr::filter(padj <= 0.05) %>%
+  dplyr::mutate_if(is.double, function(x) { return(round(x, 4)) }) %>%
+  DT::datatable()
+
+```
+
+```r
+# DESeq2::plotCounts(deseq_result, gene="ENSMUSG00000000157", intgroup = "treatment")
+# 
+# # count_data %>%
+# #   tidyr::pivot_longer(-gene_id, "sample", "count") %>%
+# #   dplyr::filter(value == 0)
+```
+
+## Plot results
+
+```{r plot_results}
+
+vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
+DESeq2::plotPCA(vsdata, intgroup = "treatment")
+
+```
+
+# Bibliography
