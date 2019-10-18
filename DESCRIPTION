@@ -21,4 +21,6 @@ Imports:
     knitr,
     rmarkdown,
     tibble,
-    DT
+    DT,
+    RColorBrewer,
+    pheatmap

@@ -8,7 +8,7 @@ output:
 params:
   path_config_json: ""
   path_salmon_counts: ""
-  top_regulated_genes_for_plotting: 300
+  top_regulated_genes_for_plotting: 10
 ---
 
 ```{r setup}
@@ -144,6 +144,8 @@ deseq_result_frame %>%
 
 # Plot results
 
+Here we gather a couple of built-in plots of the final DESeq dataset.
+
 ```{r plot_results}
 
 vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
@@ -152,6 +154,40 @@ pca_plot <- DESeq2::plotPCA(vsdata, intgroup = "treatment")
 plotly::ggplotly(pca_plot)
 
 ```
+
+```{r ma_plot}
+DESeq2::plotMA(
+  DESeq2::lfcShrink(deseq_result, coef=2, type="normal"),
+  #DESeq2::results(deseq_result),
+  ylim=c(-2,2)
+)
+```
+
+Heatmap of the sample-to-sample distances - https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
+
+```{r distance}
+
+distance_matrix <- function(deseq_result) {
+  vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
+  sampleDists <- dist(t(SummarizedExperiment::assay(vsdata)))
+  sampleDistMatrix <- as.matrix(sampleDists)
+  
+  # rownames(sampleDistMatrix) <- paste(vsdata$condition, vsdata$type, sep="-")
+  rownames(sampleDistMatrix) <- colnames(sampleDistMatrix)
+  # colnames(sampleDistMatrix) <- NULL
+
+  colors <- colorRampPalette( rev(RColorBrewer::brewer.pal(9, "Blues")) )(255)
+  pheatmap::pheatmap(sampleDistMatrix,
+    clustering_distance_rows = sampleDists,
+    clustering_distance_cols = sampleDists,
+    col = colors
+  )
+}
+
+distance_matrix(deseq_result)
+```
+
+This can probably be moved to a separate markdown file to keep the footprint of the DESeq part low.
 
 ```{r get_deseq_counts, cache = TRUE}
 
@@ -221,3 +257,5 @@ plot <- sd %>% ggplot2::ggplot(
 plotly::ggplotly(plot)
 
 ```
+
+https://genviz.org/module-04-expression/0004/02/01/DifferentialExpression/
