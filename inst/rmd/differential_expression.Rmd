@@ -8,10 +8,15 @@ output:
 params:
   path_config_json: ""
   path_salmon_counts: ""
+  out_path: ""
+  save_csv: TRUE
+  save_excel: TRUE
+  save_deseq_rds: TRUE
+  biomart_version: 97
+  biomart_variables: ""
   top_regulated_genes_for_plotting: 10
   dev: TRUE
 ---
-
 
 ```{r helper}
 ren <- function() {
@@ -30,10 +35,22 @@ if (params$dev == TRUE) {
   rmarkdown_params$path_config_json <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json"
   rmarkdown_params$path_salmon_counts <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv"
   rmarkdown_params$top_regulated_genes_for_plotting <- 10
+  rmarkdown_params$out_path <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/DESeq2"
+  rmarkdown_params$save_csv <- TRUE
+  rmarkdown_params$save_excel <- TRUE
+  rmarkdown_params$save_deseq_rds <- TRUE
+  rmarkdown_params$biomart_variables <- "external_gene_name"
+  rmarkdown_params$biomart_version <- 97
 } else {
   rmarkdown_params$path_config_json <- params$path_config_json
   rmarkdown_params$path_salmon_counts <- params$path_salmon_counts
   rmarkdown_params$top_regulated_genes_for_plotting <- params$top_regulated_genes_for_plotting
+  rmarkdown_params$out_path <- params$out_path
+  rmarkdown_params$save_csv <- params$save_csv
+  rmarkdown_params$save_excel <- params$save_excel
+  rmarkdown_params$save_deseq_rds <- params$save_deseq_rds
+  rmarkdown_params$biomart_variables <- params$biomart_variables
+  rmarkdown_params$biomart_version <- params$biomart_version
 }
 
 ```
@@ -163,6 +180,90 @@ deseq_result_frame <- DESeq2::results(
   ) %>%
   tibble::as_tibble()
 
+```
+
+```{r output_deseq_results}
+if (rmarkdown_params$out_path != "") {
+  paste0(
+    "You set the output file path to ",
+    rmarkdown_params$out_path
+  ) %>%
+    message()
+  # Be sure the output path exists
+  if (!dir.exists(rmarkdown_params$out_path)) {
+    message("The output file path does not exist. I will create it now")
+    dir.create(
+      path = rmarkdown_params$out_path,
+      showWarnings = TRUE,
+      recursive = TRUE
+    )
+  }
+  # Attach biomart
+  # biomart_version: 97
+  # biomart_variables: ""
+  # Save csv
+  if (rmarkdown_params$save_csv) {
+    # Get proper path
+    csv_path <- file.path(
+      rmarkdown_params$out_path,
+      "deseq2_diff.csv"
+    )
+    # Print status message
+    paste0(
+      "Save CSV file to ",
+      csv_path
+    ) %>%
+      message()
+    # Save CSV
+    readr::write_csv(
+      x = deseq_result_frame,
+      path = csv_path
+    )
+  }
+  # Save Excel
+  if (rmarkdown_params$save_excel) {
+    # Get proper path
+    excel_path <- file.path(
+      rmarkdown_params$out_path,
+      "deseq2_diff.xlsx"
+    )
+    # Print status message
+    paste0(
+      "Save Excel file to ",
+      excel_path
+    ) %>%
+      message()
+    # Save Excel
+    WriteXLS::WriteXLS(
+      x = deseq_result_frame,
+      ExcelFileName = excel_path,
+      AdjWidth = TRUE,
+      AutoFilter = TRUE,
+      BoldHeaderRow = TRUE,
+      FreezeRow = 1,
+      SheetNames = c("deseq2_diff")
+    )
+  }
+  # Save RDS
+  if (rmarkdown_params$save_deseq_rds) {
+    # Get proper path
+    rds_path <- file.path(
+      rmarkdown_params$out_path,
+      "deseq2_diff.rds"
+    )
+    # Print status message
+    paste0(
+      "Save Rds file to ",
+      rds_path
+    ) %>%
+      message()
+    # Save RDS
+    saveRDS(
+      object = deseq_result,
+      file = rds_path
+    )
+  }
+}
 ```
 
 There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
