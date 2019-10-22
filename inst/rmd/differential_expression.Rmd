@@ -199,8 +199,7 @@ plotly::ggplotly(pca_plot)
 
 ```{r ma_plot, cache = TRUE}
 DESeq2::plotMA(
-  DESeq2::lfcShrink(deseq_result, coef=2, type="normal"),
-  #DESeq2::results(deseq_result),
+  DESeq2::lfcShrink(deseq_result, coef=2, type="ashr"),
   ylim=c(-2,2)
 )
 ```
