@@ -13,7 +13,7 @@ params:
   save_excel: TRUE
   save_deseq_rds: TRUE
   biomart_version: 97
-  biomart_variables: ""
+  biomart_attributes: "none"
   top_regulated_genes_for_plotting: 10
   dev: TRUE
 ---
@@ -39,7 +39,7 @@ if (params$dev == TRUE) {
   rmarkdown_params$save_csv <- TRUE
   rmarkdown_params$save_excel <- TRUE
   rmarkdown_params$save_deseq_rds <- TRUE
-  rmarkdown_params$biomart_variables <- "external_gene_name"
+  rmarkdown_params$biomart_attributes <- "external_gene_name"
   rmarkdown_params$biomart_version <- 97
 } else {
   rmarkdown_params$path_config_json <- params$path_config_json
@@ -49,7 +49,7 @@ if (params$dev == TRUE) {
   rmarkdown_params$save_csv <- params$save_csv
   rmarkdown_params$save_excel <- params$save_excel
   rmarkdown_params$save_deseq_rds <- params$save_deseq_rds
-  rmarkdown_params$biomart_variables <- params$biomart_variables
+  rmarkdown_params$biomart_attributes <- params$biomart_attributes
   rmarkdown_params$biomart_version <- params$biomart_version
 }
 
@@ -57,8 +57,6 @@ if (params$dev == TRUE) {
 
 ```{r setup, results = "hide"}
 library(magrittr)
-library(crosstalk)
-library(plotly)
 ```
 
 # DESeq2 Analysis
@@ -182,7 +180,28 @@ deseq_result_frame <- DESeq2::results(
 
 ```
 
-```{r output_deseq_results}
+Now we are attaching the Biomart parameters if we have specified them.
+This will be done using the [rmyknife package](https://github.com/paulklemm/rmyknife), which at the moment only has support for Mus Musculus.
+
+```{r attach_biomart, cache = TRUE}
+if (rmarkdown_params$biomart_attributes != "none") {
+  paste0(
+    "Attaching biomart variables ",
+    rmarkdown_params$biomart_attributes
+    ) %>%
+  message()
+
+  deseq_result_frame %<>%
+    rmyknife::attach_biomart(
+      ensembl_version = rmarkdown_params$biomart_version,
+      ensembl_id_var = "row",
+      attributes = rmarkdown_params$biomart_attributes,
+    )
+}
+
+```
+
+```{r output_deseq_results, cache = TRUE}
 if (rmarkdown_params$out_path != "") {
   paste0(
     "You set the output file path to ",
@@ -200,7 +219,7 @@ if (rmarkdown_params$out_path != "") {
   }
   # Attach biomart
   # biomart_version: 97
-  # biomart_variables: ""
+  # biomart_attributes: ""
   # Save csv
   if (rmarkdown_params$save_csv) {
     # Get proper path
