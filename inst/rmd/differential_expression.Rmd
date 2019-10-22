@@ -38,7 +38,7 @@ if (params$dev == TRUE) {
 
 ```
 
-```{r setup}
+```{r setup, results = "hide"}
 library(magrittr)
 library(crosstalk)
 library(plotly)
@@ -50,13 +50,14 @@ https://4va.github.io/biodatasci/r-rnaseq-airway.html
 
 ## Prepare DESeq2 Data Import
 
-```{r load_data}
+```{r load_data, message = FALSE}
 
 settings <- jsonlite::read_json(rmarkdown_params$path_config_json)
-count_data <- readr::read_csv(rmarkdown_params$path_salmon_counts)
+count_data <- readr::read_csv(
+  rmarkdown_params$path_salmon_counts,
+  progress = FALSE
+)
 
-# settings <- jsonlite::read_json("/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json")
-# count_data <- readr::read_csv("/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv")
 ```
 
 We need to prepare the `colData` table required by DESeq2 to determine the experiment design.
@@ -121,13 +122,19 @@ count_data %<>%
 
 ```
 
-Here are the top entries of the count table as well as the experiment design table.
+Here are the top entries of the count table.
 
-```{r print_tables}
+```{r print_top_entries}
 
 count_data %>%
   head() %>%
   knitr::kable()
+
+```
+
+The experiment design table is defined as follows.
+
+```{r print_design_table}
 
 col_data %>%
   knitr::kable()
@@ -160,12 +167,20 @@ deseq_result_frame <- DESeq2::results(
 
 There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
 
+*If you click on one of the download buttons above the table, give your browser a minute to process the request.*
+
 ```{r print_de_entries}
 
 deseq_result_frame %>%
   dplyr::filter(padj <= 0.05) %>%
   dplyr::mutate_if(is.double, function(x) { return(round(x, 4)) }) %>%
-  DT::datatable()
+  DT::datatable(
+    extensions = 'Buttons',
+    options = list(
+      dom = 'Bfrtip',
+      buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+    )
+  )
 
 ```
 
@@ -182,7 +197,7 @@ plotly::ggplotly(pca_plot)
 
 ```
 
-```{r ma_plot}
+```{r ma_plot, cache = TRUE}
 DESeq2::plotMA(
   DESeq2::lfcShrink(deseq_result, coef=2, type="normal"),
   #DESeq2::results(deseq_result),
