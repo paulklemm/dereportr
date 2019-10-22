@@ -9,7 +9,34 @@ params:
   path_config_json: ""
   path_salmon_counts: ""
   top_regulated_genes_for_plotting: 10
+  dev: TRUE
 ---
+
+
+```{r helper}
+ren <- function() {
+  rmarkdown::render(
+      "inst/rmd/differential_expression.Rmd",
+      params = list(
+        path_config_json = "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json",
+        path_salmon_counts = "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv"
+      )
+    )
+}
+
+rmarkdown_params <- list()
+# Hack to be able to use infinite moon reader
+if (params$dev == TRUE) {
+  rmarkdown_params$path_config_json <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json"
+  rmarkdown_params$path_salmon_counts <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv"
+  rmarkdown_params$top_regulated_genes_for_plotting <- 10
+} else {
+  rmarkdown_params$path_config_json <- params$path_config_json
+  rmarkdown_params$path_salmon_counts <- params$path_salmon_counts
+  rmarkdown_params$top_regulated_genes_for_plotting <- params$top_regulated_genes_for_plotting
+}
+
+```
 
 ```{r setup}
 library(magrittr)
@@ -25,8 +52,8 @@ https://4va.github.io/biodatasci/r-rnaseq-airway.html
 
 ```{r load_data}
 
-settings <- jsonlite::read_json(params$path_config_json)
-count_data <- readr::read_csv(params$path_salmon_counts)
+settings <- jsonlite::read_json(rmarkdown_params$path_config_json)
+count_data <- readr::read_csv(rmarkdown_params$path_salmon_counts)
 
 # settings <- jsonlite::read_json("/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json")
 # count_data <- readr::read_csv("/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv")
@@ -221,7 +248,7 @@ deseq_counts <- deseq_result %>%
 
 deseq_counts_top_n <- deseq_counts %>%
   # Keep top n genes for plotting
-  head(params$top_regulated_genes_for_plotting) %>%
+  head(rmarkdown_params$top_regulated_genes_for_plotting) %>%
   # Remove padj
   dplyr::select(-padj, -ensembl_id) %>%
   tidyr::pivot_longer(-name, "sample") %>%
