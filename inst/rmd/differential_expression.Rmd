@@ -317,7 +317,7 @@ deseq_result_frame %>%
 
 ```
 
-# Draw quality control plots
+### Draw quality control plots
 
 The PCA shows which samples are similar on a genomic level.
 
@@ -336,6 +336,31 @@ DESeq2::plotMA(
   ylim=c(-4,4)
 )
 ```
+
+Volcano Plot.
+
+```{r volcano_plot}
+deseq_result_frame %>%
+  # Remove entries that cannot be drawn
+  dplyr::filter(!is.na(padj) & !is.na(log2FoldChange)) %>%
+  ggplot2::ggplot(
+    ggplot2::aes(
+      x = log2FoldChange,
+      y = -log10(padj),
+      color = (padj <= 0.05) %>% ifelse(., "significant", "not significant")
+    )
+  ) +
+    ggplot2::geom_point(
+      alpha = 0.3,
+      shape = 1
+    ) +
+    ggplot2::scale_color_manual(values = c("grey", "blue")) +
+    ggplot2::xlab(expression(log[2](fc))) + 
+    ggplot2::ylab(expression(-log[10](adjusted~p~value))) +
+    ggplot2::labs(colour = "Significance") +
+    ggplot2::theme_light()
+```
+
 
 Heatmap of the sample-to-sample distances - https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
 
