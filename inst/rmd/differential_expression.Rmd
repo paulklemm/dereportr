@@ -61,9 +61,15 @@ library(magrittr)
 
 # DESeq2 Analysis
 
-https://4va.github.io/biodatasci/r-rnaseq-airway.html
+This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
+
+The basis for the analysis is the [salmon](https://combine-lab.github.io/salmon/) output of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline.
+Since the pipeline is lacking support for differential gene expression, this RMarkdown document intents to midigate this problem.
 
 ## Prepare DESeq2 Data Import
+
+In this section we read in the Salmon counts for each gene.
+Additionally, we load the json file containing group assignments for each sample.
 
 ```{r load_data, message = FALSE}
 
@@ -111,6 +117,8 @@ col_data <- tibble::tibble(
 
 ```
 
+Now we conduct some checks on the input tables to see if everything is fine.
+
 ```{r check_tables}
 # Check if we have samples in count table that we do not have a treatment for
 undefined_samples <- col_data %>%
@@ -137,7 +145,7 @@ count_data %<>%
 
 ```
 
-Here are the top entries of the count table.
+Here are the top entries of the raw count table:
 
 ```{r print_top_entries}
 
@@ -147,7 +155,7 @@ count_data %>%
 
 ```
 
-The experiment design table is defined as follows.
+The sample group assignment table is defined as follows:
 
 ```{r print_design_table}
 
@@ -156,7 +164,7 @@ col_data %>%
 
 ```
 
-## Create DESeq2 Data and run DE
+## Create DESeq2 data and run differential expression analsis
 
 ```{r create_deseq2_data}
 
@@ -168,6 +176,8 @@ deseq_data <- DESeq2::DESeqDataSetFromMatrix(
 )
 
 ```
+
+We can now run the differential expression analysis.
 
 ```{r run_differential_expression_analysis, cache = TRUE}
 
@@ -201,6 +211,10 @@ if (rmarkdown_params$biomart_attributes != "none") {
 
 ```
 
+### Save results
+
+With the differential expression analysis complete we can now store away the resulting files based on the input parameters.
+
 ```{r output_deseq_results, cache = TRUE}
 if (rmarkdown_params$out_path != "") {
   paste0(
@@ -217,9 +231,6 @@ if (rmarkdown_params$out_path != "") {
       recursive = TRUE
     )
   }
-  # Attach biomart
-  # biomart_version: 97
-  # biomart_attributes: ""
   # Save csv
   if (rmarkdown_params$save_csv) {
     # Get proper path
@@ -285,6 +296,8 @@ if (rmarkdown_params$out_path != "") {
 }
 ```
 
+### Print significant results
+
 There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
 
 *If you click on one of the download buttons above the table, give your browser a minute to process the request.*
@@ -304,9 +317,9 @@ deseq_result_frame %>%
 
 ```
 
-# Plot results
+# Draw quality control plots
 
-Here we gather a couple of built-in plots of the final DESeq dataset.
+The PCA shows which samples are similar on a genomic level.
 
 ```{r plot_results}
 
@@ -320,7 +333,7 @@ plotly::ggplotly(pca_plot)
 ```{r ma_plot, cache = TRUE}
 DESeq2::plotMA(
   DESeq2::lfcShrink(deseq_result, coef=2, type="ashr"),
-  ylim=c(-2,2)
+  ylim=c(-4,4)
 )
 ```
 
