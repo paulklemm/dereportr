@@ -1,7 +1,7 @@
 #' Helper function for rendering the differential expression RMarkdown document
 #' 
 #' @export
-#' @import rmarkdown
+#' @import rmarkdown magrittr
 #'
 #' @param path_config_json Path to experiment design json file
 #' @param path_salmon_counts Path to salmon counts file
@@ -21,6 +21,20 @@ run_differential_expression <- function(
   biomart_version = 97,
   biomart_attributes = "none"
 ){
+  # Be sure the output path exists
+  if (!dir.exists(out_path)) {
+    paste0(
+      "The output path ",
+      out_path,
+      " does not exist. I will create it now."
+    ) %>%
+    message()
+    dir.create(
+      path = out_path,
+      showWarnings = TRUE,
+      recursive = TRUE
+    )
+  }
   # Render command with all parameters
   rmarkdown::render(
     system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),

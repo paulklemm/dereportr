@@ -210,15 +210,6 @@ if (rmarkdown_params$out_path != "") {
     rmarkdown_params$out_path
   ) %>%
     message()
-  # Be sure the output path exists
-  if (!dir.exists(rmarkdown_params$out_path)) {
-    message("The output file path does not exist. I will create it now")
-    dir.create(
-      path = rmarkdown_params$out_path,
-      showWarnings = TRUE,
-      recursive = TRUE
-    )
-  }
   # Save csv
   if (rmarkdown_params$save_csv) {
     # Get proper path
