@@ -39,10 +39,21 @@ In order to run the DE pipeline, you need to specify a json file with group assi
 
 ### Rendering the analysis document
 
+You can use the built-in render function for the DESeq2 RMarkdown document.
+
+```r
+nfRNAseqDESeq2::run_differential_expression(
+  path_config_json = "philipp_config.json",
+  path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
+  out_path = getwd()
+)
+```
+
+You can also use the rmarkdown render function directly if you want to customize the rendering call.
+
 ```r
 
 output_path <- getwd()
-
 # Render command with all parameters
 rmarkdown::render(
   system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
@@ -55,18 +66,10 @@ rmarkdown::render(
     save_deseq_rds = TRUE,
     biomart_version = 97,
     biomart_attributes = "external_gene_name",
-  ),
-  # Change the intermediate path to the output to avoid write access errors
-  intermediates_dir = output_path,
-  knit_root_dir = output_path,
-  # clean: TRUE to clean intermediate files created during rendering.
-  clean = TRUE,
-  output_dir = output_path,
-  output_options = list(
-    self_contained = TRUE
   )
 )
 
+# Second example
 # Render command utilizing the default parameters
 rmarkdown::render(
   system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
@@ -85,6 +88,4 @@ rmarkdown::render(
     self_contained = TRUE
   )
 )
-
-
 ```
