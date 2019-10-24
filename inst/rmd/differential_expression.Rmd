@@ -14,7 +14,7 @@ params:
   save_deseq_rds: TRUE
   biomart_version: 97
   biomart_attributes: "none"
-  dev: TRUE
+  dev: FALSE
 ---
 
 ```{r helper}
