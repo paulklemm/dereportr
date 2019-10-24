@@ -18,15 +18,6 @@ params:
 ---
 
 ```{r helper}
-ren <- function() {
-  rmarkdown::render(
-      "inst/rmd/differential_expression.Rmd",
-      params = list(
-        path_config_json = "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json",
-        path_salmon_counts = "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv"
-      )
-    )
-}
 
 rmarkdown_params <- list()
 # Hack to be able to use infinite moon reader
