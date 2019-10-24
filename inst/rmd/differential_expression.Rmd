@@ -14,7 +14,6 @@ params:
   save_deseq_rds: TRUE
   biomart_version: 97
   biomart_attributes: "none"
-  top_regulated_genes_for_plotting: 10
   dev: TRUE
 ---
 
@@ -34,7 +33,6 @@ rmarkdown_params <- list()
 if (params$dev == TRUE) {
   rmarkdown_params$path_config_json <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json"
   rmarkdown_params$path_salmon_counts <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv"
-  rmarkdown_params$top_regulated_genes_for_plotting <- 10
   rmarkdown_params$out_path <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/DESeq2"
   rmarkdown_params$save_csv <- TRUE
   rmarkdown_params$save_excel <- TRUE
@@ -44,7 +42,6 @@ if (params$dev == TRUE) {
 } else {
   rmarkdown_params$path_config_json <- params$path_config_json
   rmarkdown_params$path_salmon_counts <- params$path_salmon_counts
-  rmarkdown_params$top_regulated_genes_for_plotting <- params$top_regulated_genes_for_plotting
   rmarkdown_params$out_path <- params$out_path
   rmarkdown_params$save_csv <- params$save_csv
   rmarkdown_params$save_excel <- params$save_excel
