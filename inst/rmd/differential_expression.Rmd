@@ -22,9 +22,9 @@ params:
 rmarkdown_params <- list()
 # Hack to be able to use infinite moon reader
 if (params$dev == TRUE) {
-  rmarkdown_params$path_config_json <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/philipp_config.json"
-  rmarkdown_params$path_salmon_counts <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv"
-  rmarkdown_params$out_path <- "/beegfs/scratch/bruening_scratch/pklemm/2019-04-philipp-cers/nf-rnaseq/results/DESeq2"
+  rmarkdown_params$path_config_json <- "/beegfs/scratch/bruening_scratch/pklemm/2019-09-alain-rnaseq/analysis/groups_bat.json"
+  rmarkdown_params$path_salmon_counts <- "/beegfs/scratch/bruening_scratch/pklemm/2019-09-alain-rnaseq/analysis/bat/results/salmon/salmon_merged_gene_counts.csv"
+  rmarkdown_params$out_path <- "/beegfs/scratch/bruening_scratch/pklemm/2019-09-alain-rnaseq/analysis/bat/results/DESeq2"
   rmarkdown_params$save_csv <- TRUE
   rmarkdown_params$save_excel <- TRUE
   rmarkdown_params$save_deseq_rds <- TRUE
