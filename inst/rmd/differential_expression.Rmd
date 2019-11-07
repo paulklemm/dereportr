@@ -303,7 +303,8 @@ The PCA shows which samples are similar on a genomic level.
 ```{r plot_results}
 
 vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
-pca_plot <- DESeq2::plotPCA(vsdata, intgroup = "treatment")
+pca_plot <- DESeq2::plotPCA(vsdata, intgroup = "treatment") +
+  ggthemes::theme_tufte(base_family = "sans")
 
 plotly::ggplotly(pca_plot)
 
@@ -322,11 +323,11 @@ distance_matrix <- function(deseq_result) {
   rownames(sampleDistMatrix) <- colnames(sampleDistMatrix)
   # colnames(sampleDistMatrix) <- NULL
 
-  colors <- colorRampPalette( rev(RColorBrewer::brewer.pal(9, "Blues")) )(255)
+  #colors <- colorRampPalette( rev(RColorBrewer::brewer.pal(9, "Blues")) )(255)
   pheatmap::pheatmap(sampleDistMatrix,
     clustering_distance_rows = sampleDists,
     clustering_distance_cols = sampleDists,
-    col = colors
+    col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(255)
   )
 }
 
@@ -392,7 +393,7 @@ deseq_counts %>%
     # Set labels
     xlab = "Genes",
     ylab = "Sample",
-    col = colorRampPalette(c("white", RColorBrewer::brewer.pal(9, "Blues")[7]))(100),
+    col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
     key.title = expression(-log[10](count+1))
   )
   # ggplot2::ggplot(
@@ -429,7 +430,7 @@ DESeq2::plotMA(
 )
 ```
 
-Volcano Plot.
+Volcano Plot with top 10 genes annotated.
 
 ```{r volcano_plot}
 deseq_result_frame %>%
@@ -444,11 +445,28 @@ deseq_result_frame %>%
   ) +
     ggplot2::geom_point(
       alpha = 0.3,
-      shape = 1
+      size = 0.5
     ) +
     ggplot2::scale_color_manual(values = c("grey", "blue")) +
     ggplot2::xlab(expression(log[2](fc))) + 
     ggplot2::ylab(expression(-log[10](adjusted~p~value))) +
     ggplot2::labs(colour = "Significance") +
-    ggplot2::theme_light()
+    ggthemes::theme_tufte(base_family = "sans") +
+    ggrepel::geom_text_repel(
+      data = . %>%
+        dplyr::arrange(padj) %>%
+        head(10) %>%
+        rmyknife::attach_biomart(
+          ensembl_id_var = "row",
+          attributes = "external_gene_name",
+          ensembl_version = rmarkdown_params$biomart_version,
+          verbose = FALSE
+        ),
+      mapping = ggplot2::aes(label = external_gene_name),
+      size = 3
+    ) +
+    ggplot2::geom_hline(
+      yintercept = -log10(0.05),
+      linetype = "dotted"
+    )
 ```

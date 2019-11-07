@@ -24,4 +24,5 @@ Imports:
     DT,
     RColorBrewer,
     pheatmap,
-    ashr
+    ashr,
+    ggthemes
