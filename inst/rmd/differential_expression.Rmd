@@ -48,8 +48,12 @@ if (params$dev == TRUE) {
 library(magrittr)
 # https://stackoverflow.com/questions/27992239/knitr-include-figures-in-report-and-output-figures-to-separate-files#comment71370705_27996644
 knitr::opts_chunk$set(
-  dev = c('png', 'pdf'),
-  fig.path = 'deseq_figures/'
+  dev = c("png", "pdf"),
+  fig.path = file.path(
+    rmarkdown_params$out_path,
+    # Attach trailing '/'
+    paste0("deseq_figures", .Platform$file.sep)
+  )
 )
 
 ```
@@ -181,14 +185,16 @@ deseq_result_frame <- DESeq2::results(
     deseq_result,
     tidy = TRUE
   ) %>%
-  tibble::as_tibble()
-
+  tibble::as_tibble() %>%
+  # Arrange by adjusted p-value
+  dplyr::arrange(padj)
 ```
 
 Now we are attaching the Biomart parameters if we have specified them.
 This will be done using the [rmyknife package](https://github.com/paulklemm/rmyknife), which at the moment only has support for Mus Musculus.
 
 ```{r attach_biomart, cache = TRUE}
+
 if (rmarkdown_params$biomart_attributes != "none") {
   paste0(
     "Attaching biomart variables ",
@@ -452,6 +458,7 @@ DESeq2::plotMA(
 Volcano Plot with top 10 genes annotated.
 
 ```{r volcano_plot}
+
 deseq_result_frame %>%
   # Remove entries that cannot be drawn
   dplyr::filter(!is.na(padj) & !is.na(log2FoldChange)) %>%
@@ -488,4 +495,5 @@ deseq_result_frame %>%
       yintercept = -log10(0.05),
       linetype = "dotted"
     )
+
 ```
