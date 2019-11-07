@@ -14,7 +14,7 @@ params:
   save_deseq_rds: TRUE
   biomart_version: 97
   biomart_attributes: "none"
-  dev: TRUE
+  dev: FALSE
 ---
 
 ```{r helper}
@@ -357,7 +357,7 @@ distance_matrix(deseq_result)
 
 Heat map of top-regulated genes accross all samples. This outlines the sample similarity.
 
-```{r get_deseq_counts}
+```{r heat_map_top_n_counts}
 
 deseq_counts <- deseq_result %>%
   DESeq2::counts(
@@ -406,14 +406,13 @@ deseq_counts %>%
     scale = "none",
     trace="none",
     main = paste0(
-      "Showing top ",
+      "Counts for top ",
       ncol(.),
       " genes"
     ),
     labCol = NA,
     # Set labels
     xlab = "Genes",
-    ylab = "Sample",
     col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
     key.title = expression(-log[10](count+1))
   )
@@ -481,13 +480,7 @@ deseq_result_frame %>%
     ggrepel::geom_text_repel(
       data = . %>%
         dplyr::arrange(padj) %>%
-        head(10) %>%
-        rmyknife::attach_biomart(
-          ensembl_id_var = "row",
-          attributes = "external_gene_name",
-          ensembl_version = rmarkdown_params$biomart_version,
-          verbose = FALSE
-        ),
+        head(10),
       mapping = ggplot2::aes(label = external_gene_name),
       size = 3
     ) +
