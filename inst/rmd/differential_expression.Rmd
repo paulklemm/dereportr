@@ -44,7 +44,14 @@ if (params$dev == TRUE) {
 ```
 
 ```{r setup, results = "hide"}
+
 library(magrittr)
+# https://stackoverflow.com/questions/27992239/knitr-include-figures-in-report-and-output-figures-to-separate-files#comment71370705_27996644
+knitr::opts_chunk$set(
+  dev = c('png', 'pdf'),
+  fig.path = 'deseq_figures/'
+)
+
 ```
 
 # DESeq2 Analysis
@@ -300,7 +307,7 @@ deseq_result_frame %>%
 
 The PCA shows which samples are similar on a genomic level.
 
-```{r plot_results}
+```{r pca}
 
 pca_data <- DESeq2::plotPCA(
   DESeq2::vst(deseq_result, blind = FALSE),
@@ -320,7 +327,7 @@ pca_data %>%
 
 Heatmap of the sample-to-sample distances - https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
 
-```{r distance}
+```{r distance_matrix}
 
 distance_matrix <- function(deseq_result) {
   vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
@@ -433,8 +440,12 @@ deseq_counts %>%
 
 ```{r ma_plot, cache = TRUE}
 DESeq2::plotMA(
-  DESeq2::lfcShrink(deseq_result, coef=2, type="ashr"),
-  ylim=c(-4,4)
+  DESeq2::lfcShrink(
+    deseq_result,
+    coef = 2,
+    type = "ashr"
+  ),
+  ylim = c(-4, 4)
 )
 ```
 
