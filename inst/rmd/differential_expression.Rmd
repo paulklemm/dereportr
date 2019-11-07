@@ -178,7 +178,7 @@ deseq_data <- DESeq2::DESeqDataSetFromMatrix(
 
 We can now run the differential expression analysis.
 
-```{r run_differential_expression_analysis, cache = TRUE}
+```{r run_differential_expression_analysis, cache = FALSE}
 
 deseq_result <- DESeq2::DESeq(deseq_data)
 deseq_result_frame <- DESeq2::results(
