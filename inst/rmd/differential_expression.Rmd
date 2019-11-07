@@ -218,7 +218,7 @@ if (rmarkdown_params$biomart_attributes != "none") {
 
 With the differential expression analysis complete we can now store away the resulting files based on the input parameters.
 
-```{r output_deseq_results, cache = TRUE}
+```{r output_deseq_results, cache = FALSE}
 if (rmarkdown_params$out_path != "") {
   paste0(
     "You set the output file path to ",
@@ -323,12 +323,12 @@ pca_data <- DESeq2::plotPCA(
   returnData = TRUE
 )
 pca_data %>%
-  ggplot(aes(x=PC1, y=PC2, label = name, colour = group)) +
-    geom_point() +
-    ggtitle("Principal Component Analysis") +
+  ggplot2::ggplot(ggplot2::aes(x=PC1, y=PC2, label = name, colour = group)) +
+    ggplot2::geom_point() +
+    ggplot2::ggtitle("Principal Component Analysis") +
     ggrepel::geom_text_repel() +
-    xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
-    ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
+    ggplot2::xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
+    ggplot2::ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
     ggthemes::theme_tufte(base_family = "sans")
 
 ```
