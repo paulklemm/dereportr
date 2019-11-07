@@ -30,6 +30,10 @@ if (params$dev == TRUE) {
   rmarkdown_params$save_deseq_rds <- TRUE
   rmarkdown_params$biomart_attributes <- "external_gene_name"
   rmarkdown_params$biomart_version <- 97
+  # Create a memoized function of attach biomart to speed up things
+  if (!exists("m_attach_biomart")) {
+    m_attach_biomart <- memoise::memoise(rmyknife::attach_biomart)
+  }
 } else {
   rmarkdown_params$path_config_json <- params$path_config_json
   rmarkdown_params$path_salmon_counts <- params$path_salmon_counts
@@ -39,6 +43,7 @@ if (params$dev == TRUE) {
   rmarkdown_params$save_deseq_rds <- params$save_deseq_rds
   rmarkdown_params$biomart_attributes <- params$biomart_attributes
   rmarkdown_params$biomart_version <- params$biomart_version
+  #m_attach_biomart <- rmyknife::attach_biomart
 }
 
 ```
@@ -193,7 +198,9 @@ deseq_result_frame <- DESeq2::results(
 Now we are attaching the Biomart parameters if we have specified them.
 This will be done using the [rmyknife package](https://github.com/paulklemm/rmyknife), which at the moment only has support for Mus Musculus.
 
-```{r attach_biomart, cache = TRUE}
+```{r attach_biomart, cache = FALSE}
+# For some reason caching this creates problems with the attached deseq_result frame
+# To avoid this, we created a memoized version of the attach_biomart function
 
 if (rmarkdown_params$biomart_attributes != "none") {
   paste0(
@@ -203,7 +210,7 @@ if (rmarkdown_params$biomart_attributes != "none") {
   message()
 
   deseq_result_frame %<>%
-    rmyknife::attach_biomart(
+    m_attach_biomart(
       ensembl_version = rmarkdown_params$biomart_version,
       ensembl_id_var = "row",
       attributes = rmarkdown_params$biomart_attributes,
@@ -443,7 +450,7 @@ deseq_counts %>%
   #   )
 ```
 
-```{r ma_plot, cache = TRUE}
+```{r ma_plot, cache = FALSE}
 DESeq2::plotMA(
   DESeq2::lfcShrink(
     deseq_result,
