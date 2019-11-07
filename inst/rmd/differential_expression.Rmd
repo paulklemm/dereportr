@@ -30,10 +30,6 @@ if (params$dev == TRUE) {
   rmarkdown_params$save_deseq_rds <- TRUE
   rmarkdown_params$biomart_attributes <- "external_gene_name"
   rmarkdown_params$biomart_version <- 97
-  # Create a memoized function of attach biomart to speed up things
-  if (!exists("m_attach_biomart")) {
-    m_attach_biomart <- memoise::memoise(rmyknife::attach_biomart)
-  }
 } else {
   rmarkdown_params$path_config_json <- params$path_config_json
   rmarkdown_params$path_salmon_counts <- params$path_salmon_counts
@@ -43,7 +39,6 @@ if (params$dev == TRUE) {
   rmarkdown_params$save_deseq_rds <- params$save_deseq_rds
   rmarkdown_params$biomart_attributes <- params$biomart_attributes
   rmarkdown_params$biomart_version <- params$biomart_version
-  #m_attach_biomart <- rmyknife::attach_biomart
 }
 
 ```
@@ -210,7 +205,7 @@ if (rmarkdown_params$biomart_attributes != "none") {
   message()
 
   deseq_result_frame %<>%
-    m_attach_biomart(
+    rmyknife::attach_biomart(
       ensembl_version = rmarkdown_params$biomart_version,
       ensembl_id_var = "row",
       attributes = rmarkdown_params$biomart_attributes,
