@@ -25,4 +25,5 @@ Imports:
     RColorBrewer,
     pheatmap,
     ashr,
-    ggthemes
+    ggthemes,
+    ggrepel
