@@ -357,7 +357,7 @@ deseq_counts <- deseq_result %>%
   dplyr::arrange(padj) %>%
   tibble::as_tibble()
 
-test <- deseq_counts %>%
+deseq_counts %>%
   dplyr::filter(padj <= 0.05) %>%
   # Create adjusted count column suitable for plotting
   dplyr::mutate(adj_count = log10(count + 1)) %>%
@@ -372,105 +372,54 @@ test <- deseq_counts %>%
     ) %>%
       message()
     return(df)
-  })
-
-x <- test %>%
+  }) %>%
+  # Heatmap.2
   dplyr::select(-count, -padj) %>%
   tidyr::pivot_wider(names_from = sample_name, values_from = adj_count) %>%
   tibble::column_to_rownames("ensembl_id") %>%
-  scale()
-
-dd.col <- as.dendrogram(hclust(dist(x)))
-col.ord <- order.dendrogram(dd.col)
-
-dd.row <- as.dendrogram(hclust(dist(t(x))))
-row.ord <- order.dendrogram(dd.row)
-
-xx <- scale(x)[col.ord, row.ord]
-xx_names <- attr(xx, "dimnames")
-df <- as.data.frame(xx)
-colnames(df) <- xx_names[[2]]
-df$car <- xx_names[[1]]
-df$car <- with(df, factor(car, levels=car, ordered=TRUE))
-
-mdf <- reshape2::melt(df, id.vars="car")
-
-ddata_x <- ggdendro::dendro_data(dd.row)
-ddata_y <- ggdendro::dendro_data(dd.col)
-
-### Set up a blank theme
-theme_none <- ggplot2::theme(
-  panel.grid.major = ggplot2::element_blank(),
-  panel.grid.minor = ggplot2::element_blank(),
-  panel.background = ggplot2::element_blank(),
-  #axis.title.x = ggplot2::element_text(colour=NA),
-  axis.title.y = ggplot2::element_blank(),
-  axis.text.x = ggplot2::element_blank(),
-  axis.text.y = ggplot2::element_blank(),
-  axis.line = ggplot2::element_blank()
-  #axis.ticks.length = element_blank()
-)
-
-### Create plot components ###    
-# Heatmap
-p1 <- ggplot2::ggplot(mdf, ggplot2::aes(x=variable, y=car)) + 
-  ggplot2::geom_tile(ggplot2::aes(fill=value)) +
-  ggplot2::scale_fill_gradient2() +
-  ggplot2::theme(
-    axis.text.y = ggplot2::element_blank(),
-    axis.ticks.y = ggplot2::element_blank()
+  as.matrix() %>%
+  t() %>%
+  gplots::heatmap.2(
+    dendrogram = "row",
+    scale = "none",
+    trace="none",
+    main = paste0(
+      "Showing top ",
+      ncol(.),
+      " genes"
+    ),
+    labCol = NA,
+    # Set labels
+    xlab = "Genes",
+    ylab = "Sample",
+    col = colorRampPalette(c("white", RColorBrewer::brewer.pal(9, "Blues")[7]))(100),
+    key.title = expression(-log[10](count+1))
   )
-
-# Dendrogram 1
-p2 <- ggplot2::ggplot(ggdendro::segment(ddata_x)) + 
-  ggplot2::geom_segment(ggplot2::aes(x=x, y=y, xend=xend, yend=yend)) + 
-  theme_none +
-  ggplot2::theme(
-    axis.title.x = element_blank(),
-    axis.text.y = ggplot2::element_blank(),
-    axis.ticks.y = ggplot2::element_blank()
-  )
-
-grid::grid.newpage()
-print(p1, vp=grid::viewport(0.8, 0.8, x=0.4, y=0.4))
-print(p2, vp=grid::viewport(0.52, 0.2, x=0.45, y=0.9))
-
-test %>%
-  dplyr::select(-count, -padj) %>%
-  tidyr::pivot_wider(names_from = sample_name, values_from = adj_count) %>%
-  tibble::column_to_rownames("ensembl_id") %>%
-  heatmaply::heatmaply(
-    showticklabels = c(TRUE, FALSE),
-    plot_method = "ggplot",
-    label_names = c("Sample Label", "Genes", "log(10) count + 1")
-  )
-
-test  %>%
-  ggplot2::ggplot(
-    ggplot2::aes(
-      x = sample_name,
-      y = ensembl_id
-    )
-  ) +
-    ggplot2::geom_tile(
-      ggplot2::aes(fill = adj_count)
-    ) +
-    ggplot2::scale_fill_distiller(
-      direction = 1,
-      name = "log(10) count + 1"
-    ) +
-    ggplot2::ggtitle("Heat map of top regulated genes") +
-    ggplot2::xlab("Sample Label") +
-    ggplot2::ylab("Genes") +
-    ggplot2::theme(
-      axis.text.x = ggplot2::element_text(
-        angle = 45,
-        vjust = 1,
-        hjust=1
-      ),
-      axis.text.y = ggplot2::element_blank(),
-      axis.ticks.y = ggplot2::element_blank()
-    )
+  # ggplot2::ggplot(
+  #   ggplot2::aes(
+  #     x = sample_name,
+  #     y = ensembl_id
+  #   )
+  # ) +
+  #   ggplot2::geom_tile(
+  #     ggplot2::aes(fill = adj_count)
+  #   ) +
+  #   ggplot2::scale_fill_distiller(
+  #     direction = 1,
+  #     name = "log(10) count + 1"
+  #   ) +
+  #   ggplot2::ggtitle("Heat map of top regulated genes") +
+  #   ggplot2::xlab("Sample Label") +
+  #   ggplot2::ylab("Genes") +
+  #   ggplot2::theme(
+  #     axis.text.x = ggplot2::element_text(
+  #       angle = 45,
+  #       vjust = 1,
+  #       hjust=1
+  #     ),
+  #     axis.text.y = ggplot2::element_blank(),
+  #     axis.ticks.y = ggplot2::element_blank()
+  #   )
 ```
 
 ```{r ma_plot, cache = TRUE}
