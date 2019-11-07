@@ -302,11 +302,19 @@ The PCA shows which samples are similar on a genomic level.
 
 ```{r plot_results}
 
-vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
-pca_plot <- DESeq2::plotPCA(vsdata, intgroup = "treatment") +
-  ggthemes::theme_tufte(base_family = "sans")
-
-plotly::ggplotly(pca_plot)
+pca_data <- DESeq2::plotPCA(
+  DESeq2::vst(deseq_result, blind = FALSE),
+  intgroup = "treatment",
+  returnData = TRUE
+)
+pca_data %>%
+  ggplot(aes(x=PC1, y=PC2, label = name, colour = group)) +
+    geom_point() +
+    ggtitle("Principal Component Analysis") +
+    ggrepel::geom_text_repel() +
+    xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
+    ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
+    ggthemes::theme_tufte(base_family = "sans")
 
 ```
 
