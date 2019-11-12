@@ -3,7 +3,7 @@ title: "Differential Gene Expression Analysis based on Salmon output of nf-core 
 output:
   html_notebook:
     toc: yes
-    toc_float: yes
+    toc_float: no
     code_folding: hide
 params:
   path_config_json: ""
@@ -46,6 +46,9 @@ if (params$dev == TRUE) {
 ```{r setup, results = "hide"}
 
 library(magrittr)
+# # https://dtplyr.tidyverse.org/
+# library(dtplyr)
+# library(dplyr, warn.conflicts = FALSE)
 # https://stackoverflow.com/questions/27992239/knitr-include-figures-in-report-and-output-figures-to-separate-files#comment71370705_27996644
 knitr::opts_chunk$set(
   dev = c("png", "pdf"),
@@ -100,6 +103,36 @@ settings$groups %>%
       dplyr::bind_rows(coldata_group)
   })
 
+# Next we get the required comparisons. Either they are specified with the JSON
+# file or we automatically create them based on the treatment column
+# Iterate over comparisons to create comparison list
+comparisons <- list()
+if (!is.null(settings$comparisons)) {
+  comparisons <- settings$comparisons
+} else {
+  treatments <- col_data %>%
+    dplyr::select("treatment") %>%
+    dplyr::distinct() %>%
+    dplyr::pull()
+  for (i in 1:length(treatments)) {
+    for (j in 1:length(treatments)) {
+      if (i > j) {
+        treatment_a <- treatments[i][[1]]
+        treatment_b <- treatments[j][[1]]
+        comparison_name <- paste0(
+          treatment_a,
+          "_vs_",
+          treatment_b
+        )
+        comparisons[comparison_name][[1]] <- list(
+          "group_a" = treatment_a,
+          "group_b" = treatment_b
+        )
+      }
+    }
+  }
+}
+
 # The order in coldata must be the same as in count_data
 # We achieve this by joining based on the id in count_data
 col_data <- tibble::tibble(
@@ -135,7 +168,9 @@ undefined_samples$id %>%
   )
 
 col_data %<>%
-  dplyr::filter(!is.na(treatment))
+  dplyr::filter(!is.na(treatment)) %>%
+  # Convert treatment variable to factor as required by DESeq2
+  dplyr::mutate(treatment = as.factor(treatment))
 
 # Convert counts to integer to comply with DEseq2 standards
 count_data %<>%
@@ -180,20 +215,48 @@ We can now run the differential expression analysis.
 
 ```{r run_differential_expression_analysis, cache = FALSE}
 
-deseq_result <- DESeq2::DESeq(deseq_data)
-deseq_result_frame <- DESeq2::results(
-    deseq_result,
-    tidy = TRUE
-  ) %>%
-  tibble::as_tibble() %>%
-  # Arrange by adjusted p-value
-  dplyr::arrange(padj)
+# deseq_result <- DESeq2::DESeq(deseq_data)
+# deseq_result_frame <- DESeq2::results(
+#     deseq_result,
+#     tidy = TRUE
+#   ) %>%
+#   tibble::as_tibble() %>%
+#   # Arrange by adjusted p-value
+#   dplyr::arrange(padj)
+
+deseq_result_frame <- comparisons %>%
+  purrr::imap(function(comparison, comparison_name) {
+    paste0(
+      "Get differential expression for comparison ",
+      comparison_name,
+      ", group a: ",
+      comparison$group_a,
+      ", group_b: ",
+      comparison$group_b
+    ) %>%
+      message()
+
+    DESeq2::results(
+      deseq_result,
+      tidy = TRUE,
+      # Define which group we want to extract
+      contrast = c("treatment", comparison$group_a, comparison$group_b)
+    ) %>%
+    tibble::as_tibble() %>%
+    # Keep the comparison as one variable in the data frame
+    dplyr::mutate(comparison = comparison_name) %>%
+    # Arrange by adjusted p-value
+    dplyr::arrange(padj)
+  }) %>%
+  # Bind all data frames into one big frame
+  dplyr::bind_rows()
+
 ```
 
 Now we are attaching the Biomart parameters if we have specified them.
 This will be done using the [rmyknife package](https://github.com/paulklemm/rmyknife), which at the moment only has support for Mus Musculus.
 
-```{r attach_biomart, cache = FALSE}
+```{r attach_biomart}
 # For some reason caching this creates problems with the attached deseq_result frame
 # To avoid this, we created a memoized version of the attach_biomart function
 
@@ -306,7 +369,8 @@ deseq_result_frame %>%
     options = list(
       dom = 'Bfrtip',
       buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
-    )
+    ),
+    filter = "top"
   )
 
 ```
@@ -359,7 +423,7 @@ distance_matrix(deseq_result)
 
 Heat map of top-regulated genes accross all samples. This outlines the sample similarity.
 
-```{r heat_map_top_n_counts}
+```{r heat_map_top_n_counts, warning = FALSE}
 
 deseq_counts <- deseq_result %>%
   DESeq2::counts(
@@ -374,50 +438,81 @@ deseq_counts <- deseq_result %>%
   dplyr::left_join(
     .,
     deseq_result_frame %>%
-      dplyr::select(row, padj),
+      dplyr::select(row, padj, comparison),
     by = c("ensembl_id" = "row")
   ) %>%
   # Order by adjusted p-value
   dplyr::arrange(padj) %>%
   tibble::as_tibble()
 
+# Iterate over all comparison names
 deseq_counts %>%
-  dplyr::filter(padj <= 0.05) %>%
-  # Create adjusted count column suitable for plotting
-  dplyr::mutate(adj_count = log10(count + 1)) %>%
-  (function(df) {
-    paste0(
-      "Drawing heat map for ",
-      df %>%
-        dplyr::select(ensembl_id) %>%
-        dplyr::distinct() %>%
-        nrow(),
-      " genes."
-    ) %>%
-      message()
-    return(df)
-  }) %>%
-  # Heatmap.2
-  dplyr::select(-count, -padj) %>%
-  tidyr::pivot_wider(names_from = sample_name, values_from = adj_count) %>%
-  tibble::column_to_rownames("ensembl_id") %>%
-  as.matrix() %>%
-  t() %>%
-  gplots::heatmap.2(
-    dendrogram = "row",
-    scale = "none",
-    trace="none",
-    main = paste0(
-      "Counts for top ",
-      ncol(.),
-      " genes"
-    ),
-    labCol = NA,
-    # Set labels
-    xlab = "Genes",
-    col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
-    key.title = expression(-log[10](count+1))
+  dplyr::select(comparison) %>%
+  dplyr::distinct() %>%
+  dplyr::pull() %>%
+  purrr::walk(
+    function(comparison_name) {
+      # Draw the heat map based on the current comparison
+      deseq_counts_tmp <- deseq_counts %>%
+        dplyr::filter(comparison == comparison_name) %>%
+        dplyr::filter(padj <= 0.05)
+      if (deseq_counts_tmp %>% nrow() == 0) {
+        return()
+      }
+      
+      deseq_counts_tmp %>%
+        # Create adjusted count column suitable for plotting
+        dplyr::mutate(adj_count = log10(count + 1)) %>%
+        # Heatmap.2
+        dplyr::select(ensembl_id, sample_name, adj_count) %>%
+        tidyr::pivot_wider(names_from = sample_name, values_from = adj_count) %>%
+        tibble::column_to_rownames("ensembl_id") %>%
+        as.matrix() %>%
+        t() %>%
+        gplots::heatmap.2(
+          dendrogram = "row",
+          scale = "none",
+          trace="none",
+          main = paste0(
+            comparison_name,
+            ". Top ",
+            ncol(.),
+            " genes"
+          ),
+          labCol = NA,
+          # Set labels
+          xlab = "Genes",
+          col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
+          key.title = expression(-log[10](count+1))
+        )
+    }
   )
+
+# deseq_counts %>%
+#   dplyr::filter(padj <= 0.05) %>%
+#   # Create adjusted count column suitable for plotting
+#   dplyr::mutate(adj_count = log10(count + 1)) %>%
+#   # Heatmap.2
+#   dplyr::select(-count, -padj) %>%
+#   tidyr::pivot_wider(names_from = sample_name, values_from = adj_count) %>%
+#   tibble::column_to_rownames("ensembl_id") %>%
+#   as.matrix() %>%
+#   t() %>%
+#   gplots::heatmap.2(
+#     dendrogram = "row",
+#     scale = "none",
+#     trace="none",
+#     main = paste0(
+#       "Counts for top ",
+#       ncol(.),
+#       " genes"
+#     ),
+#     labCol = NA,
+#     # Set labels
+#     xlab = "Genes",
+#     col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
+#     key.title = expression(-log[10](count+1))
+#   )
   # ggplot2::ggplot(
   #   ggplot2::aes(
   #     x = sample_name,
@@ -446,14 +541,15 @@ deseq_counts %>%
 ```
 
 ```{r ma_plot, cache = FALSE}
-DESeq2::plotMA(
-  DESeq2::lfcShrink(
-    deseq_result,
-    coef = 2,
-    type = "ashr"
-  ),
-  ylim = c(-4, 4)
-)
+# Skipping MA plot because we don't use it.
+# DESeq2::plotMA(
+#   DESeq2::lfcShrink(
+#     deseq_result,
+#     coef = 2,
+#     type = "ashr"
+#   ),
+#   ylim = c(-4, 4)
+# )
 ```
 
 Volcano Plot with top 10 genes annotated.
@@ -461,34 +557,47 @@ Volcano Plot with top 10 genes annotated.
 ```{r volcano_plot}
 
 deseq_result_frame %>%
-  # Remove entries that cannot be drawn
-  dplyr::filter(!is.na(padj) & !is.na(log2FoldChange)) %>%
-  ggplot2::ggplot(
-    ggplot2::aes(
-      x = log2FoldChange,
-      y = -log10(padj),
-      color = (padj <= 0.05) %>% ifelse(., "significant", "not significant")
-    )
-  ) +
-    ggplot2::geom_point(
-      alpha = 0.3,
-      size = 0.5
-    ) +
-    ggplot2::scale_color_manual(values = c("grey", "blue")) +
-    ggplot2::xlab(expression(log[2](fc))) + 
-    ggplot2::ylab(expression(-log[10](adjusted~p~value))) +
-    ggplot2::labs(colour = "Significance") +
-    ggthemes::theme_tufte(base_family = "sans") +
-    ggrepel::geom_text_repel(
-      data = . %>%
-        dplyr::arrange(padj) %>%
-        head(10),
-      mapping = ggplot2::aes(label = external_gene_name),
-      size = 3
-    ) +
-    ggplot2::geom_hline(
-      yintercept = -log10(0.05),
-      linetype = "dotted"
-    )
+  dplyr::select(comparison) %>%
+  dplyr::distinct() %>%
+  dplyr::pull() %>%
+  purrr::walk(function(comparison_name) {
+
+    volcano_plot <- deseq_result_frame %>%
+      dplyr::filter(comparison == comparison_name) %>%
+      # Remove entries that cannot be drawn
+      dplyr::filter(!is.na(padj) & !is.na(log2FoldChange)) %>%
+      # Draw the plot
+      ggplot2::ggplot(
+        ggplot2::aes(
+          x = log2FoldChange,
+          y = -log10(padj),
+          color = (padj <= 0.05) %>% ifelse(., "significant", "not significant")
+        )
+      ) +
+        ggplot2::geom_point(
+          alpha = 0.3,
+          size = 0.5
+        ) +
+        ggplot2::scale_color_manual(values = c("grey", "blue")) +
+        ggplot2::ggtitle(paste0("Comparison: ", comparison_name)) +
+        ggplot2::xlab(expression(log[2](fc))) + 
+        ggplot2::ylab(expression(-log[10](adjusted~p~value))) +
+        ggplot2::labs(colour = "Significance") +
+        ggthemes::theme_tufte(base_family = "sans") +
+        ggrepel::geom_text_repel(
+          data = . %>%
+            dplyr::arrange(padj) %>%
+            head(10),
+          mapping = ggplot2::aes(label = external_gene_name),
+          size = 3
+        ) +
+        ggplot2::geom_hline(
+          yintercept = -log10(0.05),
+          linetype = "dotted"
+        )
+    # Print volcano plot
+    volcano_plot %>%
+      print()
+  })
 
 ```

@@ -29,13 +29,30 @@ The DESeq2 RMarkdown document required two important things.
 In order to run the DE pipeline, you need to specify a json file with group assignments for each sample, e.g.:
 
 ```json
+
 {
   "groups": {
-    "scrmbl": ["K002000135_65089", "K002000135_65095", "K002000135_65101"],
-    "shMFF": ["K002000135_65083", "K002000135_65091", "K002000135_65099"]
+    "BAT_W": ["BAT_W_2", "BAT_W_3", "BAT_W_4", "BAT_W_5"],
+    "BAT_C": ["BAT_C_1", "BAT_C_2", "BAT_C_3", "BAT_C_4", "BAT_C_5"],
+    "BAT_D": ["BAT_D_1", "BAT_D_2", "BAT_D_3", "BAT_D_4", "BAT_D_5"],
+    "BAT_CD": ["BAT_CD_1", "BAT_CD_2", "BAT_CD_3", "BAT_CD_4", "BAT_CD_5"]
+  },
+  "comparisons": {
+    "BAT_W vs BAT_C": {
+      "group_a": "BAT_W",
+      "group_b": "BAT_C"
+    },
+    "BAT_W vs BAT_D": {
+      "group_a": "BAT_W",
+      "group_b": "BAT_D"
+    }
   }
 }
+
 ```
+
+Note that the comparisons section is optional.
+When there are no comparisons specified, the tool will automatically compare all groups pairwise.
 
 ### Rendering the analysis document
 
