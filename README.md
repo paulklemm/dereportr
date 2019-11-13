@@ -1,15 +1,22 @@
 
-# nfRNAseqDESeq2
+# 🧬 🔬 nfRNAseqDESeq2
 
-<!-- badges: start -->
-<!-- badges: end -->
+<!-- TOC depthFrom:2 -->
+
+- [💾 Installation](#💾-installation)
+- [🏀 Example](#🏀-example)
+  - [Sample group assignment json file](#sample-group-assignment-json-file)
+  - [Rendering the analysis document](#rendering-the-analysis-document)
+- [⏳ History](#⏳-history)
+
+<!-- /TOC -->
 
 This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
 
 The basis for the analysis is the [salmon](https://combine-lab.github.io/salmon/) output of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline.
 Since the pipeline is lacking support for differential gene expression, this package intents to midigate this problem.
 
-## Installation
+## 💾 Installation
 
 You can install the development version of nfRNAseqDESeq2 using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) with:
 
@@ -17,12 +24,12 @@ You can install the development version of nfRNAseqDESeq2 using [devtools](https
 devtools::install_github("paulklemm/nfRNAseqDESeq2")
 ```
 
-## Example
+## 🏀 Example
 
 The DESeq2 RMarkdown document required two important things.
 
-1) A json file containing the group assignments for each sample
-2) The path to the Salmon count file of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline
+1 A json file containing the group assignments for each sample
+2 The path to the Salmon count file of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline
 
 ### Sample group assignment json file
 
@@ -106,3 +113,8 @@ rmarkdown::render(
   )
 )
 ```
+
+## ⏳ History
+
+- *2019-11-12*
+  - Add [support for multiple conditions](https://github.com/paulklemm/nfRNAseqDESeq2/issues/4)
