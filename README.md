@@ -7,6 +7,7 @@
 - [🏀 Example](#🏀-example)
   - [Sample group assignment json file](#sample-group-assignment-json-file)
   - [Rendering the analysis document](#rendering-the-analysis-document)
+  - [🐛 Debug Mode](#🐛-debug-mode)
 - [⏳ History](#⏳-history)
 
 <!-- /TOC -->
@@ -114,7 +115,27 @@ rmarkdown::render(
 )
 ```
 
+### 🐛 Debug Mode
+
+For debugging the RMarkdown script, it's advised to use xaringan.
+
+```r
+
+xaringan::infinite_moon_reader(
+  "inst/rmd/differential_expression.Rmd",
+  params = list(
+    path_config_json = "groups.json",
+    path_salmon_counts = "results/salmon/salmon_merged_gene_counts.csv",
+    out_path = "./",
+    biomart_attributes = c("external_gene_name", "gene_biotype")
+  )
+)
+
+```
+
 ## ⏳ History
 
+- *2020-01-07*
+  - Remove old debug mode, add reference to Xaringan
 - *2019-11-12*
   - Add [support for multiple conditions](https://github.com/paulklemm/nfRNAseqDESeq2/issues/4)
