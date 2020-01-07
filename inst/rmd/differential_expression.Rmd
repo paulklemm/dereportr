@@ -14,34 +14,7 @@ params:
   save_deseq_rds: TRUE
   biomart_version: 97
   biomart_attributes: "none"
-  dev: FALSE
 ---
-
-```{r helper}
-
-rmarkdown_params <- list()
-# Hack to be able to use infinite moon reader
-if (params$dev == TRUE) {
-  rmarkdown_params$path_config_json <- "/beegfs/scratch/bruening_scratch/pklemm/2019-09-alain-rnaseq/analysis/groups_bat.json"
-  rmarkdown_params$path_salmon_counts <- "/beegfs/scratch/bruening_scratch/pklemm/2019-09-alain-rnaseq/analysis/bat/results/salmon/salmon_merged_gene_counts.csv"
-  rmarkdown_params$out_path <- "/beegfs/scratch/bruening_scratch/pklemm/2019-09-alain-rnaseq/analysis/bat/results/DESeq2"
-  rmarkdown_params$save_csv <- TRUE
-  rmarkdown_params$save_excel <- TRUE
-  rmarkdown_params$save_deseq_rds <- TRUE
-  rmarkdown_params$biomart_attributes <- "external_gene_name"
-  rmarkdown_params$biomart_version <- 97
-} else {
-  rmarkdown_params$path_config_json <- params$path_config_json
-  rmarkdown_params$path_salmon_counts <- params$path_salmon_counts
-  rmarkdown_params$out_path <- params$out_path
-  rmarkdown_params$save_csv <- params$save_csv
-  rmarkdown_params$save_excel <- params$save_excel
-  rmarkdown_params$save_deseq_rds <- params$save_deseq_rds
-  rmarkdown_params$biomart_attributes <- params$biomart_attributes
-  rmarkdown_params$biomart_version <- params$biomart_version
-}
-
-```
 
 ```{r setup, results = "hide"}
 
@@ -53,7 +26,7 @@ library(magrittr)
 knitr::opts_chunk$set(
   dev = c("png", "pdf"),
   fig.path = file.path(
-    rmarkdown_params$out_path,
+    params$out_path,
     # Attach trailing '/'
     paste0("deseq_figures", .Platform$file.sep)
   )
@@ -75,9 +48,9 @@ Additionally, we load the json file containing group assignments for each sample
 
 ```{r load_data, message = FALSE}
 
-settings <- jsonlite::read_json(rmarkdown_params$path_config_json)
+settings <- jsonlite::read_json(params$path_config_json)
 count_data <- readr::read_csv(
-  rmarkdown_params$path_salmon_counts,
+  params$path_salmon_counts,
   progress = FALSE
 )
 
@@ -261,18 +234,18 @@ This will be done using the [rmyknife package](https://github.com/paulklemm/rmyk
 # For some reason caching this creates problems with the attached deseq_result frame
 # To avoid this, we created a memoized version of the attach_biomart function
 
-if (rmarkdown_params$biomart_attributes != "none") {
+if (params$biomart_attributes != "none") {
   paste0(
     "Attaching biomart variables ",
-    rmarkdown_params$biomart_attributes
+    params$biomart_attributes
     ) %>%
   message()
 
   deseq_result_frame %<>%
     rmyknife::attach_biomart(
-      ensembl_version = rmarkdown_params$biomart_version,
+      ensembl_version = params$biomart_version,
       ensembl_id_var = "row",
-      attributes = rmarkdown_params$biomart_attributes,
+      attributes = params$biomart_attributes,
     )
 }
 
@@ -283,17 +256,17 @@ if (rmarkdown_params$biomart_attributes != "none") {
 With the differential expression analysis complete we can now store away the resulting files based on the input parameters.
 
 ```{r output_deseq_results, cache = FALSE}
-if (rmarkdown_params$out_path != "") {
+if (params$out_path != "") {
   paste0(
     "You set the output file path to ",
-    rmarkdown_params$out_path
+    params$out_path
   ) %>%
     message()
   # Save csv
-  if (rmarkdown_params$save_csv) {
+  if (params$save_csv) {
     # Get proper path
     csv_path <- file.path(
-      rmarkdown_params$out_path,
+      params$out_path,
       "deseq2_diff.csv"
     )
     # Print status message
@@ -309,10 +282,10 @@ if (rmarkdown_params$out_path != "") {
     )
   }
   # Save Excel
-  if (rmarkdown_params$save_excel) {
+  if (params$save_excel) {
     # Get proper path
     excel_path <- file.path(
-      rmarkdown_params$out_path,
+      params$out_path,
       "deseq2_diff.xlsx"
     )
     # Print status message
@@ -333,10 +306,10 @@ if (rmarkdown_params$out_path != "") {
     )
   }
   # Save RDS
-  if (rmarkdown_params$save_deseq_rds) {
+  if (params$save_deseq_rds) {
     # Get proper path
     rds_path <- file.path(
-      rmarkdown_params$out_path,
+      params$out_path,
       "deseq2_diff.rds"
     )
     # Print status message
