@@ -135,6 +135,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-01-08*
+  - Close [Use TPM over counts file #5](https://github.com/paulklemm/nfRNAseqDESeq2/issues/5)
 - *2020-01-07*
   - Remove old debug mode, add reference to Xaringan
   - Add [Use TPM over counts file #5](https://github.com/paulklemm/nfRNAseqDESeq2/issues/5)
