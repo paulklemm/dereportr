@@ -19,9 +19,7 @@ params:
 ```{r setup, results = "hide"}
 
 library(magrittr)
-# # https://dtplyr.tidyverse.org/
-# library(dtplyr)
-# library(dplyr, warn.conflicts = FALSE)
+
 # https://stackoverflow.com/questions/27992239/knitr-include-figures-in-report-and-output-figures-to-separate-files#comment71370705_27996644
 knitr::opts_chunk$set(
   dev = c("png", "pdf"),
