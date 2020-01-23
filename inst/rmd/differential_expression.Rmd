@@ -42,6 +42,19 @@ This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/pa
 The basis for the analysis is the [salmon](https://combine-lab.github.io/salmon/) output of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline.
 Since the pipeline is lacking support for differential gene expression, this RMarkdown document intents to midigate this problem.
 
+## Parameters
+
+```{r print_parameters}
+
+# Print settings as table
+tibble::tibble(
+  name = c("path_config_json", "path_salmon_counts", "out_path", "save_csv", "save_excel", "save_deseq_rds", "biomart_version", "biomart_attributes"),
+  setting = c(params$path_config_json, params$path_salmon_counts, params$out_path, params$save_csv, params$save_excel, params$save_deseq_rds, params$biomart_version, params$biomart_attributes %>% paste(collapse = ", "))
+) %>%
+  knitr::kable()
+
+```
+
 ## Prepare DESeq2 Data Import
 
 In this section we read in the Salmon counts for each gene.
