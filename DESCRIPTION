@@ -1,13 +1,13 @@
 Package: nfRNAseqDESeq2
-Title: What the Package Does (One Line, Title Case)
-Version: 0.0.0.9000
+Title: Differential Gene Expression Analysis using DESeq2
+Version: 0.0.1
 Authors@R: 
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
-           comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: What the package does (one paragraph).
+    person(given = "Paul",
+        family = "Klemm",
+        role = c("aut", "cre"),
+        email = "paul.klemm@sf.mpg.de",
+        comment = c(ORCID = "https://orcid.org/0000-0002-5985-1737"))
+Description: Differential gene expression analysis using DESeq2 based on Salmon output of NFCore RNAseq pipeline. Outputs analysis report as HTML and DE genes as CSV and Excel sheets.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
