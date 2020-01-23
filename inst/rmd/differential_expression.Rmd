@@ -374,14 +374,17 @@ pca_data <- DESeq2::plotPCA(
   intgroup = "treatment",
   returnData = TRUE
 )
-pca_data %>%
+
+pca_plot <- pca_data %>%
   ggplot2::ggplot(ggplot2::aes(x=PC1, y=PC2, label = name, colour = group)) +
     ggplot2::geom_point() +
     ggplot2::ggtitle("Principal Component Analysis") +
-    ggrepel::geom_text_repel() +
     ggplot2::xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
     ggplot2::ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
     ggthemes::theme_tufte(base_family = "sans")
+
+pca_plot
+pca_plot + ggrepel::geom_text_repel()
 
 ```
 
