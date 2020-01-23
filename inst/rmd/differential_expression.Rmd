@@ -5,6 +5,8 @@ output:
     toc: yes
     toc_float: no
     code_folding: hide
+    fig_height: 8
+    fig_width: 10
 params:
   path_config_json: ""
   path_salmon_counts: ""
