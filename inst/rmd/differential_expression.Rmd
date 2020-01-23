@@ -474,7 +474,8 @@ deseq_counts %>%
           # Set labels
           xlab = "Genes",
           col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
-          key.title = expression(-log[10](count+1))
+          key.title = expression(-log[10](count+1)),
+          margins=c(4, 15)
         )
     }
   )
