@@ -135,6 +135,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-01-23*
+  - Add goterm analysis function using the mygo package `goterm_analysis_of_all_comparisons`
 - *2020-01-08*
   - Close [Use TPM over counts file #5](https://github.com/paulklemm/nfRNAseqDESeq2/issues/5)
 - *2020-01-07*

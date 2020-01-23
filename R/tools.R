@@ -59,3 +59,61 @@ run_differential_expression <- function(
     )
   )
 }
+
+#' Create GO-term analysis for all comparisons of deseq2_diff.csv (created by nfRNAseqDESeq2)
+#' @export
+#' @import mygo magrittr dplyr readr
+#' @param deseq2_diff_path Path to deseq2_diff.csv created by nfRNAseqDESeq2
+#' @param out_path Path to output files
+#' @examples
+#'   goterm_analysis_of_all_comparisons(
+#'     deseq2_diff_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/DESeq2/deseq2_diff.csv",
+#'     out_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/goterm-analysis"
+#'   )
+goterm_analysis_of_all_comparisons <- function(
+  deseq2_diff_path,
+  out_path
+) {
+  # Read in DESeq2 result file
+  deseq_output <- readr::read_csv(deseq2_diff_path)
+  # Get all comparisons
+  deseq_output %>%
+    dplyr::select(comparison) %>%
+    dplyr::distinct() %>%
+    dplyr::pull() %>%
+    # Iterate over all comparisons
+    purrr::walk(function(current_comparison) {
+      # Check if path for current comparison exists. If not, create it
+      out_path_current_comparison <- file.path(out_path, current_comparison)
+      if (!dir.exists(out_path_current_comparison)) {
+        paste0("Directory '", out_path_current_comparison, "' does not exist, I will create it.") %>%
+          warning()
+        dir.create(out_path_current_comparison, recursive = TRUE)
+      }
+      # Print out status message for current analysis
+      paste0(
+        "Conducting GO-term analysis for comparison '",
+        current_comparison,
+        "', output folder: '",
+        out_path_current_comparison, "'"
+      ) %>%
+        message()
+      deseq_output %>%
+        # Filter for current comparison
+        dplyr::filter(comparison == current_comparison) %>%
+        # Create data frame compatible with mygo
+        dplyr::rename(
+          ensembl_gene_id = row,
+          q_value = padj,
+          fc = log2FoldChange,
+          Symbol = external_gene_name
+        ) %>%
+        dplyr::select(ensembl_gene_id, q_value, fc, Symbol) %>%
+        # Filter out NA values
+        dplyr::filter(!is.na(q_value)) %>%
+        # Start GO-term analysis
+        mygo::createHTMLReport(
+          output_path = out_path_current_comparison
+        )
+    })
+}

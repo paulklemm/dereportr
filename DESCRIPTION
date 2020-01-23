@@ -1,6 +1,6 @@
 Package: nfRNAseqDESeq2
 Title: Differential Gene Expression Analysis using DESeq2
-Version: 0.0.1
+Version: 0.0.2
 Authors@R: 
     person(given = "Paul",
         family = "Klemm",
@@ -26,4 +26,5 @@ Imports:
     pheatmap,
     ashr,
     ggthemes,
-    ggrepel
+    ggrepel,
+    mygo
