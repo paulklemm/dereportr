@@ -65,6 +65,8 @@ run_differential_expression <- function(
 #' @import mygo magrittr dplyr readr
 #' @param deseq2_diff_path Path to deseq2_diff.csv created by nfRNAseqDESeq2
 #' @param out_path Path to output files
+#' @param simplify_ontologies See mygo::createHTMLReport
+#' @param do_gse See mygo::createHTMLReport
 #' @examples
 #'   goterm_analysis_of_all_comparisons(
 #'     deseq2_diff_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/DESeq2/deseq2_diff.csv",
@@ -72,7 +74,9 @@ run_differential_expression <- function(
 #'   )
 goterm_analysis_of_all_comparisons <- function(
   deseq2_diff_path,
-  out_path
+  out_path,
+  simplify_ontologies = TRUE,
+  do_gse = TRUE
 ) {
   # Read in DESeq2 result file
   deseq_output <- readr::read_csv(deseq2_diff_path)
@@ -98,7 +102,7 @@ goterm_analysis_of_all_comparisons <- function(
         out_path_current_comparison, "'"
       ) %>%
         message()
-      deseq_output %>%
+      deseq_output %<>%
         # Filter for current comparison
         dplyr::filter(comparison == current_comparison) %>%
         # Create data frame compatible with mygo
@@ -111,9 +115,24 @@ goterm_analysis_of_all_comparisons <- function(
         dplyr::select(ensembl_gene_id, q_value, fc, Symbol) %>%
         # Filter out NA values
         dplyr::filter(!is.na(q_value)) %>%
-        # Start GO-term analysis
-        mygo::createHTMLReport(
-          output_path = out_path_current_comparison
-        )
+        # Check if we have enough differentially expressed genes
+        (function(deseq_output) {
+          if (deseq_output %>% dplyr::filter(q_value <= 0.05) %>% nrow() > 0) {
+            # Start GO-term analysis
+            deseq_output %>% mygo::createHTMLReport(
+              output_path = out_path_current_comparison,
+              simplify_ontologies = simplify_ontologies,
+              do_gse = do_gse
+            )
+          } else {
+            # Throw error message
+            paste0(
+              "No differentially expressed when filtering for '",
+              current_comparison,
+              "'"
+            ) %>%
+              stop()
+          }
+        })
     })
 }
