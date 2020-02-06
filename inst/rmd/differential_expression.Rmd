@@ -460,23 +460,38 @@ deseq_counts %>%
         tibble::column_to_rownames("ensembl_id") %>%
         as.matrix() %>%
         t() %>%
-        gplots::heatmap.2(
-          dendrogram = "row",
-          scale = "none",
-          trace="none",
-          main = paste0(
-            comparison_name,
-            ". Top ",
-            ncol(.),
-            " genes"
-          ),
-          labCol = NA,
-          # Set labels
-          xlab = "Genes",
-          col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
-          key.title = expression(-log[10](count+1)),
-          margins=c(4, 15)
-        )
+        (function(dat_heatmap) {
+          # Check if data frame meets minimum requirement
+          if (nrow(dat_heatmap) < 2 | ncol(dat_heatmap) < 2) {
+            paste0(
+              "Cannot print heat map for comparison ",
+              comparison_name,
+              ". It contains ",
+              nrow(deseq_counts_tmp),
+              " significant genes."
+            ) %>%
+              warning()
+            return()
+          }
+          # Print heat map
+          dat_heatmap %>% gplots::heatmap.2(
+            dendrogram = "row",
+            scale = "none",
+            trace="none",
+            main = paste0(
+              comparison_name,
+              ". Top ",
+              ncol(.),
+              " genes"
+            ),
+            labCol = NA,
+            # Set labels
+            xlab = "Genes",
+            col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
+            key.title = expression(-log[10](count+1)),
+            margins=c(4, 15)
+          )
+        })
     }
   )
 
