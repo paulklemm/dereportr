@@ -4,8 +4,12 @@
 \alias{goterm_analysis_of_all_comparisons}
 \title{Create GO-term analysis for all comparisons of deseq2_diff.csv (created by nfRNAseqDESeq2)}
 \usage{
-goterm_analysis_of_all_comparisons(deseq2_diff_path, out_path,
-  simplify_ontologies = TRUE, do_gse = TRUE)
+goterm_analysis_of_all_comparisons(
+  deseq2_diff_path,
+  out_path,
+  simplify_ontologies = TRUE,
+  do_gse = TRUE
+)
 }
 \arguments{
 \item{deseq2_diff_path}{Path to deseq2_diff.csv created by nfRNAseqDESeq2}

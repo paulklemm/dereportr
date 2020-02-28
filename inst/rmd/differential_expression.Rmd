@@ -10,6 +10,7 @@ output:
 params:
   path_config_json: ""
   path_salmon_counts: ""
+  count_data: NULL
   out_path: ""
   save_csv: TRUE
   save_excel: TRUE
@@ -40,7 +41,9 @@ knitr::opts_chunk$set(
 This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
 
 The basis for the analysis is the [salmon](https://combine-lab.github.io/salmon/) output of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline.
-Since the pipeline is lacking support for differential gene expression, this RMarkdown document intents to midigate this problem.
+Since the pipeline is lacking support for differential gene expression, this RMarkdown document intents to fix this.
+
+Alternatively we can input a `count_data` data frame directly, containing a `gene_id` column and additional columns containing counts for each sample.
 
 ## Parameters
 
@@ -63,10 +66,17 @@ Additionally, we load the json file containing group assignments for each sample
 ```{r load_data, message = FALSE}
 
 settings <- jsonlite::read_json(params$path_config_json)
-count_data <- readr::read_csv(
-  params$path_salmon_counts,
-  progress = FALSE
-)
+
+if (!is.null(params$count_data)) {
+  message("Using count_data dataframe provided as paramter")
+  count_data <- params$count_data
+} else {
+  message("Loading counts from Salmon count CSV file")
+  count_data <- readr::read_csv(
+    params$path_salmon_counts,
+    progress = FALSE
+  )
+}
 
 ```
 
@@ -151,8 +161,7 @@ undefined_samples$id %>%
       warning()
     count_data <<- count_data %>%
       dplyr::select(-dplyr::contains(na_sample))
-    }
-  )
+  })
 
 col_data %<>%
   dplyr::filter(!is.na(treatment)) %>%
@@ -163,7 +172,6 @@ col_data %<>%
 count_data %<>%
   dplyr::mutate_if(is.double, round) %>%
   dplyr::mutate_if(is.double, as.integer)
-
 ```
 
 Here are the top entries of the raw count table:
@@ -182,6 +190,14 @@ The sample group assignment table is defined as follows:
 
 col_data %>%
   knitr::kable()
+
+```
+
+Here are the comparisons we are running:
+
+```{r print_comparisons}
+
+comparisons %>% print()
 
 ```
 
@@ -230,15 +246,14 @@ deseq_result_frame <- comparisons %>%
       # Define which group we want to extract
       contrast = c("treatment", comparison$group_a, comparison$group_b)
     ) %>%
-    tibble::as_tibble() %>%
-    # Keep the comparison as one variable in the data frame
-    dplyr::mutate(comparison = comparison_name) %>%
-    # Arrange by adjusted p-value
-    dplyr::arrange(padj)
+      tibble::as_tibble() %>%
+      # Keep the comparison as one variable in the data frame
+      dplyr::mutate(comparison = comparison_name) %>%
+      # Arrange by adjusted p-value
+      dplyr::arrange(padj)
   }) %>%
   # Bind all data frames into one big frame
   dplyr::bind_rows()
-
 ```
 
 Now we are attaching the Biomart parameters if we have specified them.
@@ -252,8 +267,8 @@ if (params$biomart_attributes != "none") {
   paste0(
     "Attaching biomart variables ",
     params$biomart_attributes
-    ) %>%
-  message()
+  ) %>%
+    message()
 
   deseq_result_frame %<>%
     rmyknife::attach_biomart(
@@ -262,7 +277,6 @@ if (params$biomart_attributes != "none") {
       attributes = params$biomart_attributes,
     )
 }
-
 ```
 
 ### Save results
@@ -351,16 +365,17 @@ There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <
 
 deseq_result_frame %>%
   dplyr::filter(padj <= 0.05) %>%
-  dplyr::mutate_if(is.double, function(x) { return(round(x, 4)) }) %>%
+  dplyr::mutate_if(is.double, function(x) {
+    return(round(x, 4))
+  }) %>%
   DT::datatable(
-    extensions = 'Buttons',
+    extensions = "Buttons",
     options = list(
-      dom = 'Bfrtip',
-      buttons = c('copy', 'csv', 'excel', 'pdf', 'print')
+      dom = "Bfrtip",
+      buttons = c("copy", "csv", "excel", "pdf", "print")
     ),
     filter = "top"
   )
-
 ```
 
 ### Draw quality control plots
@@ -376,16 +391,15 @@ pca_data <- DESeq2::plotPCA(
 )
 
 pca_plot <- pca_data %>%
-  ggplot2::ggplot(ggplot2::aes(x=PC1, y=PC2, label = name, colour = group)) +
-    ggplot2::geom_point() +
-    ggplot2::ggtitle("Principal Component Analysis") +
-    ggplot2::xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
-    ggplot2::ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
-    ggthemes::theme_tufte(base_family = "sans")
+  ggplot2::ggplot(ggplot2::aes(x = PC1, y = PC2, label = name, colour = group)) +
+  ggplot2::geom_point() +
+  ggplot2::ggtitle("Principal Component Analysis") +
+  ggplot2::xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
+  ggplot2::ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
+  ggthemes::theme_tufte(base_family = "sans")
 
 pca_plot
 pca_plot + ggrepel::geom_text_repel()
-
 ```
 
 Heatmap of the sample-to-sample distances - https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
@@ -396,12 +410,12 @@ distance_matrix <- function(deseq_result) {
   vsdata <- DESeq2::vst(deseq_result, blind = FALSE)
   sampleDists <- dist(t(SummarizedExperiment::assay(vsdata)))
   sampleDistMatrix <- as.matrix(sampleDists)
-  
+
   # rownames(sampleDistMatrix) <- paste(vsdata$condition, vsdata$type, sep="-")
   rownames(sampleDistMatrix) <- colnames(sampleDistMatrix)
   # colnames(sampleDistMatrix) <- NULL
 
-  #colors <- colorRampPalette( rev(RColorBrewer::brewer.pal(9, "Blues")) )(255)
+  # colors <- colorRampPalette( rev(RColorBrewer::brewer.pal(9, "Blues")) )(255)
   pheatmap::pheatmap(sampleDistMatrix,
     clustering_distance_rows = sampleDists,
     clustering_distance_cols = sampleDists,
@@ -450,7 +464,7 @@ deseq_counts %>%
       if (deseq_counts_tmp %>% nrow() == 0) {
         return()
       }
-      
+
       deseq_counts_tmp %>%
         # Create adjusted count column suitable for plotting
         dplyr::mutate(adj_count = log10(count + 1)) %>%
@@ -477,7 +491,7 @@ deseq_counts %>%
           dat_heatmap %>% gplots::heatmap.2(
             dendrogram = "row",
             scale = "none",
-            trace="none",
+            trace = "none",
             main = paste0(
               comparison_name,
               ". Top ",
@@ -488,8 +502,8 @@ deseq_counts %>%
             # Set labels
             xlab = "Genes",
             col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
-            key.title = expression(-log[10](count+1)),
-            margins=c(4, 15)
+            key.title = expression(-log[10](count + 1)),
+            margins = c(4, 15)
           )
         })
     }
@@ -520,31 +534,31 @@ deseq_counts %>%
 #     col = colorRampPalette(RColorBrewer::brewer.pal(9, "Blues"))(200),
 #     key.title = expression(-log[10](count+1))
 #   )
-  # ggplot2::ggplot(
-  #   ggplot2::aes(
-  #     x = sample_name,
-  #     y = ensembl_id
-  #   )
-  # ) +
-  #   ggplot2::geom_tile(
-  #     ggplot2::aes(fill = adj_count)
-  #   ) +
-  #   ggplot2::scale_fill_distiller(
-  #     direction = 1,
-  #     name = "log(10) count + 1"
-  #   ) +
-  #   ggplot2::ggtitle("Heat map of top regulated genes") +
-  #   ggplot2::xlab("Sample Label") +
-  #   ggplot2::ylab("Genes") +
-  #   ggplot2::theme(
-  #     axis.text.x = ggplot2::element_text(
-  #       angle = 45,
-  #       vjust = 1,
-  #       hjust=1
-  #     ),
-  #     axis.text.y = ggplot2::element_blank(),
-  #     axis.ticks.y = ggplot2::element_blank()
-  #   )
+# ggplot2::ggplot(
+#   ggplot2::aes(
+#     x = sample_name,
+#     y = ensembl_id
+#   )
+# ) +
+#   ggplot2::geom_tile(
+#     ggplot2::aes(fill = adj_count)
+#   ) +
+#   ggplot2::scale_fill_distiller(
+#     direction = 1,
+#     name = "log(10) count + 1"
+#   ) +
+#   ggplot2::ggtitle("Heat map of top regulated genes") +
+#   ggplot2::xlab("Sample Label") +
+#   ggplot2::ylab("Genes") +
+#   ggplot2::theme(
+#     axis.text.x = ggplot2::element_text(
+#       angle = 45,
+#       vjust = 1,
+#       hjust=1
+#     ),
+#     axis.text.y = ggplot2::element_blank(),
+#     axis.ticks.y = ggplot2::element_blank()
+#   )
 ```
 
 ```{r ma_plot, cache = FALSE}
@@ -568,7 +582,6 @@ deseq_result_frame %>%
   dplyr::distinct() %>%
   dplyr::pull() %>%
   purrr::walk(function(comparison_name) {
-
     volcano_plot <- deseq_result_frame %>%
       dplyr::filter(comparison == comparison_name) %>%
       # Remove entries that cannot be drawn
@@ -581,30 +594,29 @@ deseq_result_frame %>%
           color = (padj <= 0.05) %>% ifelse(., "significant", "not significant")
         )
       ) +
-        ggplot2::geom_point(
-          alpha = 0.3,
-          size = 0.5
-        ) +
-        ggplot2::scale_color_manual(values = c("grey", "blue")) +
-        ggplot2::ggtitle(paste0("Comparison: ", comparison_name)) +
-        ggplot2::xlab(expression(log[2](fc))) + 
-        ggplot2::ylab(expression(-log[10](adjusted~p~value))) +
-        ggplot2::labs(colour = "Significance") +
-        ggthemes::theme_tufte(base_family = "sans") +
-        ggrepel::geom_text_repel(
-          data = . %>%
-            dplyr::arrange(padj) %>%
-            head(10),
-          mapping = ggplot2::aes(label = external_gene_name),
-          size = 3
-        ) +
-        ggplot2::geom_hline(
-          yintercept = -log10(0.05),
-          linetype = "dotted"
-        )
+      ggplot2::geom_point(
+        alpha = 0.3,
+        size = 0.5
+      ) +
+      ggplot2::scale_color_manual(values = c("grey", "blue")) +
+      ggplot2::ggtitle(paste0("Comparison: ", comparison_name)) +
+      ggplot2::xlab(expression(log[2](fc))) +
+      ggplot2::ylab(expression(-log[10](adjusted ~ p ~ value))) +
+      ggplot2::labs(colour = "Significance") +
+      ggthemes::theme_tufte(base_family = "sans") +
+      ggrepel::geom_text_repel(
+        data = . %>%
+          dplyr::arrange(padj) %>%
+          head(10),
+        mapping = ggplot2::aes(label = external_gene_name),
+        size = 3
+      ) +
+      ggplot2::geom_hline(
+        yintercept = -log10(0.05),
+        linetype = "dotted"
+      )
     # Print volcano plot
     volcano_plot %>%
       print()
   })
-
 ```

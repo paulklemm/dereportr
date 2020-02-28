@@ -6,6 +6,7 @@
 #' @param path_config_json Path to experiment design json file
 #' @param path_salmon_counts Path to salmon counts file
 #' @param out_path Path for output
+#' @param count_data Count data dataframe. Replaces path_salmon_counts
 #' @param save_csv Output differentially expressed entries as csv file
 #' @param save_excel Output differentially expressed entries as excel file
 #' @param save_deseq_rds Output DESeq2 result object as rds file
@@ -13,14 +14,18 @@
 #' @param biomart_version Specify Ensembl version. Only required if biomart_attributes are defined
 run_differential_expression <- function(
   path_config_json,
-  path_salmon_counts,
+  path_salmon_counts = "",
   out_path,
+  count_data = NULL,
   save_csv = TRUE,
   save_excel = TRUE,
   save_deseq_rds = TRUE,
   biomart_version = 97,
   biomart_attributes = "none"
 ){
+  if (path_salmon_counts == "" & is.null(count_data)) {
+    stop("You have to either specify 'path_salmon_counts' or 'count_data'")
+  }
   # Be sure the output path exists
   if (!dir.exists(out_path)) {
     paste0(
@@ -42,6 +47,7 @@ run_differential_expression <- function(
       path_config_json = path_config_json,
       path_salmon_counts = path_salmon_counts,
       out_path = out_path,
+      count_data = count_data,
       save_csv = save_csv,
       save_excel = save_excel,
       save_deseq_rds = save_deseq_rds,

@@ -4,9 +4,17 @@
 \alias{run_differential_expression}
 \title{Helper function for rendering the differential expression RMarkdown document}
 \usage{
-run_differential_expression(path_config_json, path_salmon_counts, out_path,
-  save_csv = TRUE, save_excel = TRUE, save_deseq_rds = TRUE,
-  biomart_version = 97, biomart_attributes = "none")
+run_differential_expression(
+  path_config_json,
+  path_salmon_counts = "",
+  out_path,
+  count_data = NULL,
+  save_csv = TRUE,
+  save_excel = TRUE,
+  save_deseq_rds = TRUE,
+  biomart_version = 97,
+  biomart_attributes = "none"
+)
 }
 \arguments{
 \item{path_config_json}{Path to experiment design json file}
@@ -14,6 +22,8 @@ run_differential_expression(path_config_json, path_salmon_counts, out_path,
 \item{path_salmon_counts}{Path to salmon counts file}
 
 \item{out_path}{Path for output}
+
+\item{count_data}{Count data dataframe. Replaces path_salmon_counts}
 
 \item{save_csv}{Output differentially expressed entries as csv file}
 
