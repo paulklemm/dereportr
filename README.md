@@ -135,6 +135,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-02-28*
+  - Added ability to input count_data directly instead of Salmon counts
 - *2020-01-23*
   - Add goterm analysis function using the mygo package `goterm_analysis_of_all_comparisons`
 - *2020-01-08*
