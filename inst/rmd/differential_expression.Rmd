@@ -284,17 +284,22 @@ if (params$biomart_attributes != "none") {
 With the differential expression analysis complete we can now store away the resulting files based on the input parameters.
 
 ```{r output_deseq_results, cache = FALSE}
+
+out_path_de_files <- file.path(params$out_path, "deseq_diff")
+
 if (params$out_path != "") {
   paste0(
     "You set the output file path to ",
-    params$out_path
+    out_path_de_files
   ) %>%
     message()
+  # Create the folder
+  dir.create(out_path_de_files)
   # Save csv
   if (params$save_csv) {
     # Get proper path
     csv_path <- file.path(
-      params$out_path,
+      out_path_de_files,
       "deseq2_diff.csv"
     )
     # Print status message
@@ -313,7 +318,7 @@ if (params$out_path != "") {
   if (params$save_excel) {
     # Get proper path
     excel_path <- file.path(
-      params$out_path,
+      out_path_de_files,
       "deseq2_diff.xlsx"
     )
     # Print status message
@@ -337,7 +342,7 @@ if (params$out_path != "") {
   if (params$save_deseq_rds) {
     # Get proper path
     rds_path <- file.path(
-      params$out_path,
+      out_path_de_files,
       "deseq2_diff.rds"
     )
     # Print status message

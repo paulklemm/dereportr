@@ -12,6 +12,7 @@
 #' @param save_deseq_rds Output DESeq2 result object as rds file
 #' @param biomart_attributes Attach biomart attributes to the resulting table
 #' @param biomart_version Specify Ensembl version. Only required if biomart_attributes are defined
+#' @param clean_output Clean intermediate rmarkdown render files
 run_differential_expression <- function(
   path_config_json,
   path_salmon_counts = "",
@@ -21,7 +22,8 @@ run_differential_expression <- function(
   save_excel = TRUE,
   save_deseq_rds = TRUE,
   biomart_version = 97,
-  biomart_attributes = "none"
+  biomart_attributes = "none",
+  clean_output = TRUE
 ){
   if (path_salmon_counts == "" & is.null(count_data)) {
     stop("You have to either specify 'path_salmon_counts' or 'count_data'")
@@ -58,7 +60,7 @@ run_differential_expression <- function(
     intermediates_dir = out_path,
     knit_root_dir = out_path,
     # Clean intermediate files created during rendering.
-    clean = TRUE,
+    clean = clean_output,
     output_dir = out_path,
     output_options = list(
       self_contained = TRUE
