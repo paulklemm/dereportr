@@ -13,7 +13,8 @@ run_differential_expression(
   save_excel = TRUE,
   save_deseq_rds = TRUE,
   biomart_version = 97,
-  biomart_attributes = "none"
+  biomart_attributes = "none",
+  clean_output = TRUE
 )
 }
 \arguments{
@@ -34,6 +35,8 @@ run_differential_expression(
 \item{biomart_version}{Specify Ensembl version. Only required if biomart_attributes are defined}
 
 \item{biomart_attributes}{Attach biomart attributes to the resulting table}
+
+\item{clean_output}{Clean intermediate rmarkdown render files}
 }
 \description{
 Helper function for rendering the differential expression RMarkdown document
