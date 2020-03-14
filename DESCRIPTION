@@ -1,6 +1,6 @@
 Package: nfRNAseqDESeq2
 Title: Differential Gene Expression Analysis using DESeq2
-Version: 0.0.2
+Version: 0.0.3
 Authors@R: 
     person(given = "Paul",
         family = "Klemm",

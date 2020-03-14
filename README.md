@@ -135,6 +135,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-03-14*
+  - Put deseq2 diff files into a separate folder. Bump version to `0.0.3`
 - *2020-02-28*
   - Added ability to input count_data directly instead of Salmon counts
 - *2020-01-23*
