@@ -8,7 +8,8 @@ goterm_analysis_of_all_comparisons(
   deseq2_diff_path,
   out_path,
   simplify_ontologies = TRUE,
-  do_gse = TRUE
+  do_gse = TRUE,
+  debug = FALSE
 )
 }
 \arguments{
@@ -19,6 +20,8 @@ goterm_analysis_of_all_comparisons(
 \item{simplify_ontologies}{See mygo::createHTMLReport}
 
 \item{do_gse}{See mygo::createHTMLReport}
+
+\item{debug}{Save dataframe passed to mygo to allow for debugging}
 }
 \description{
 Create GO-term analysis for all comparisons of deseq2_diff.csv (created by nfRNAseqDESeq2)
