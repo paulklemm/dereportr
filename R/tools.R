@@ -135,7 +135,7 @@ goterm_analysis_of_all_comparisons <- function(
           } else {
             # Throw error message
             paste0(
-              "No differentially expressed when filtering for '",
+              "No differentially expressed entries when filtering for '",
               current_comparison,
               "'"
             ) %>%
