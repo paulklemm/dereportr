@@ -130,9 +130,7 @@ goterm_analysis_of_all_comparisons <- function(
           if (deseq_output %>% dplyr::filter(q_value <= 0.05) %>% nrow() > 0) {
             if (debug) {
               # Print status message
-              message("Debug mode, write output to " debug_file_path)
-              # Create directory, because it does most likely not exist
-              dir.create(out_path_current_comparison, recursive = TRUE)
+              message(paste0("Debug mode, write output to ", debug_file_path))
               # Write debug output
               deseq_output %>%
                 readr::write_csv(
