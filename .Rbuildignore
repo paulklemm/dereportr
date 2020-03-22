@@ -1,1 +1,3 @@
 ^LICENSE\.md$
+^inst/rmd/differential_expression\.nb\.html$
+^\.vscode$
