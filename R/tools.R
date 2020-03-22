@@ -75,6 +75,7 @@ run_differential_expression <- function(
 #' @param out_path Path to output files
 #' @param simplify_ontologies See mygo::createHTMLReport
 #' @param do_gse See mygo::createHTMLReport
+#' @param debug Save dataframe passed to mygo to allow for debugging
 #' @examples
 #'   goterm_analysis_of_all_comparisons(
 #'     deseq2_diff_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/DESeq2/deseq2_diff.csv",
@@ -84,7 +85,8 @@ goterm_analysis_of_all_comparisons <- function(
   deseq2_diff_path,
   out_path,
   simplify_ontologies = TRUE,
-  do_gse = TRUE
+  do_gse = TRUE,
+  debug = FALSE
 ) {
   # Read in DESeq2 result file
   deseq_output <- readr::read_csv(deseq2_diff_path)
@@ -126,6 +128,10 @@ goterm_analysis_of_all_comparisons <- function(
         # Check if we have enough differentially expressed genes
         (function(deseq_output) {
           if (deseq_output %>% dplyr::filter(q_value <= 0.05) %>% nrow() > 0) {
+            if (debug) {
+              deseq_output %>%
+                readr::write_csv(file.path(out_path_current_comparison, "deseq_output_for_mygo_debug.csv"))
+            }
             # Start GO-term analysis
             deseq_output %>% mygo::createHTMLReport(
               output_path = out_path_current_comparison,
