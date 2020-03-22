@@ -129,8 +129,15 @@ goterm_analysis_of_all_comparisons <- function(
         (function(deseq_output) {
           if (deseq_output %>% dplyr::filter(q_value <= 0.05) %>% nrow() > 0) {
             if (debug) {
+              # Print status message
+              message("Debug mode, write output to " debug_file_path)
+              # Create directory, because it does most likely not exist
+              dir.create(out_path_current_comparison, recursive = TRUE)
+              # Write debug output
               deseq_output %>%
-                readr::write_csv(file.path(out_path_current_comparison, "deseq_output_for_mygo_debug.csv"))
+                readr::write_csv(
+                  file.path(out_path_current_comparison, "deseq_output_for_mygo_debug.csv")
+                )
             }
             # Start GO-term analysis
             deseq_output %>% mygo::createHTMLReport(
