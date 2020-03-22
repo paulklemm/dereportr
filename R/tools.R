@@ -141,7 +141,9 @@ goterm_analysis_of_all_comparisons <- function(
             deseq_output %>% mygo::createHTMLReport(
               output_path = out_path_current_comparison,
               simplify_ontologies = simplify_ontologies,
-              do_gse = do_gse
+              do_gse = do_gse,
+              # Always use background
+              use_background = TRUE
             )
           } else {
             # Throw error message
