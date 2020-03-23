@@ -135,6 +135,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-03-23*
+  - Improve description and layout of analysis doc. Bump version to `0.0.4`
 - *2020-03-14*
   - Put deseq2 diff files into a separate folder. Bump version to `0.0.3`
 - *2020-02-28*
