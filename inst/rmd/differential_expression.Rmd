@@ -1,5 +1,5 @@
 ---
-title: "Differential Gene Expression Analysis based on Salmon output of nf-core RNASeq pipeline."
+title: "Differential Gene Expression Analysis"
 output:
   html_notebook:
     code_folding: hide
@@ -17,7 +17,15 @@ params:
   biomart_attributes: "none"
 ---
 
-```{r setup, results = "hide"}
+This document contains many quality control plots of the differential expression (DE) analysis of your data.
+
+Here is what you should do.
+
+1. Check in **Overview & DESeq2 Run** if the sample ID's and the treatment are correct. Additionally, check if the comparisons are correct.
+2. Use the plots in **Sample Similarity** if your experimental groups cluster together. If they don't, this might be a problem.
+3. Check your differentially expressed genes
+
+```{r setup, results = "hide", message = FALSE, warning = FALSE}
 
 library(magrittr)
 suppressWarnings(library(rmyknife))
@@ -358,32 +366,15 @@ if (params$out_path != "") {
 }
 ```
 
-### Differentially Expressed Genes
+### Sample Similarity
 
-There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
+Here we look at the variance between the samples.
 
-*If you click on one of the download buttons above the table, give your browser a minute to process the request.*
+#### Principal Component Analysis
 
-```{r print_de_entries}
-
-deseq_result_frame %>%
-  dplyr::filter(padj <= 0.05) %>%
-  dplyr::mutate_if(is.double, function(x) {
-    return(round(x, 4))
-  }) %>%
-  DT::datatable(
-    extensions = "Buttons",
-    options = list(
-      dom = "Bfrtip",
-      buttons = c("copy", "csv", "excel", "pdf", "print")
-    ),
-    filter = "top"
-  )
-```
-
-### PCA
-
-The PCA shows which samples are similar on a genomic level.
+The Principal Component Analysis (PCA) shows which samples are similar on a genomic level.
+Ideally we want our experimental groups to cluster together.
+If your samples do not cluster up in the PCA plot, there are going to be less differentially expressed genes, because the variance is too high.
 
 ```{r pca}
 
@@ -405,9 +396,12 @@ pca_plot
 pca_plot + ggrepel::geom_text_repel()
 ```
 
-### Distance Matrix
+#### Distance Matrix
 
-Heatmap of the sample-to-sample distances - https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
+This plot shows sample similarity.
+It can help finding outliers and similar samples.
+In essence, it captures the same information as the PCA, but plotted in a different way.
+See the [DESeq2 manual](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis) for more details.
 
 ```{r distance_matrix}
 
@@ -430,6 +424,36 @@ distance_matrix <- function(deseq_result) {
 
 distance_matrix(deseq_result)
 ```
+
+### Differentially Expressed (DE) Genes
+
+There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
+
+*If you click on one of the download buttons above the table, give your browser a minute to process the request.*
+
+```{r print_de_entries}
+
+deseq_result_frame %>%
+  dplyr::filter(padj <= 0.05) %>%
+  dplyr::mutate_if(is.double, function(x) {
+    return(round(x, 4))
+  }) %>%
+  DT::datatable(
+    extensions = "Buttons",
+    options = list(
+      dom = "Bfrtip",
+      buttons = c("copy", "csv", "excel", "pdf", "print")
+    ),
+    filter = "top"
+  )
+```
+
+
+### DE Genes Plots
+
+Let's look at some plots of the differentially expressed genes.
+
+#### Regulated Genes Heat Map
 
 Heat map of top-regulated genes accross all samples. This outlines the sample similarity.
 
@@ -578,9 +602,11 @@ deseq_counts %>%
 # )
 ```
 
-### Volcano Plot
+#### Volcano Plot
 
-Volcano Plot with top 10 genes annotated.
+A volcano plot maps fold change on the x axis against significance on the y-axis.
+We create the plot for all comparisons available in the data.
+The *top 10* differentially regulated genes are labeled.
 
 ```{r volcano_plot}
 
