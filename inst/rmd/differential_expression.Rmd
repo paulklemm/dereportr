@@ -2,8 +2,6 @@
 title: "Differential Gene Expression Analysis based on Salmon output of nf-core RNASeq pipeline."
 output:
   html_notebook:
-    toc: yes
-    toc_float: no
     code_folding: hide
     fig_height: 8
     fig_width: 10
@@ -36,7 +34,9 @@ knitr::opts_chunk$set(
 
 ```
 
-# DESeq2 Analysis
+## {.tabset}
+
+### Overview & DESeq2 Run
 
 This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
 
@@ -44,8 +44,6 @@ The basis for the analysis is the [salmon](https://combine-lab.github.io/salmon/
 Since the pipeline is lacking support for differential gene expression, this RMarkdown document intents to fix this.
 
 Alternatively we can input a `count_data` data frame directly, containing a `gene_id` column and additional columns containing counts for each sample.
-
-## Parameters
 
 ```{r print_parameters}
 
@@ -58,7 +56,7 @@ tibble::tibble(
 
 ```
 
-## Prepare DESeq2 Data Import
+#### Prepare DESeq2 Data Import
 
 In this section we read in the Salmon counts for each gene.
 Additionally, we load the json file containing group assignments for each sample.
@@ -201,7 +199,7 @@ comparisons %>% print()
 
 ```
 
-## Create DESeq2 data and run differential expression analsis
+#### Create DESeq2 data and run differential expression analsis
 
 ```{r create_deseq2_data}
 
@@ -279,7 +277,7 @@ if (params$biomart_attributes != "none") {
 }
 ```
 
-### Save results
+#### Save results
 
 With the differential expression analysis complete we can now store away the resulting files based on the input parameters.
 
@@ -360,7 +358,7 @@ if (params$out_path != "") {
 }
 ```
 
-### Print significant results
+### Differentially Expressed Genes
 
 There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
 
@@ -383,7 +381,7 @@ deseq_result_frame %>%
   )
 ```
 
-### Draw quality control plots
+#### PCA
 
 The PCA shows which samples are similar on a genomic level.
 
@@ -406,6 +404,8 @@ pca_plot <- pca_data %>%
 pca_plot
 pca_plot + ggrepel::geom_text_repel()
 ```
+
+#### Distance Matrix
 
 Heatmap of the sample-to-sample distances - https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html#differential-expression-analysis
 
@@ -577,6 +577,8 @@ deseq_counts %>%
 #   ylim = c(-4, 4)
 # )
 ```
+
+#### Volcano Plot
 
 Volcano Plot with top 10 genes annotated.
 
