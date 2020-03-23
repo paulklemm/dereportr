@@ -146,13 +146,13 @@ goterm_analysis_of_all_comparisons <- function(
               use_background = TRUE
             )
           } else {
-            # Throw error message
+            # Show warning and continue
             paste0(
               "No differentially expressed entries when filtering for '",
               current_comparison,
               "'"
             ) %>%
-              stop()
+              warning()
           }
         })
     })
