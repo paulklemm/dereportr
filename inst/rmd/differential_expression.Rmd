@@ -376,6 +376,8 @@ The Principal Component Analysis (PCA) shows which samples are similar on a geno
 Ideally we want our experimental groups to cluster together.
 If your samples do not cluster up in the PCA plot, there are going to be less differentially expressed genes, because the variance is too high.
 
+We plot two versions of the PCA, one with and without labels.
+
 ```{r pca}
 
 pca_data <- DESeq2::plotPCA(
