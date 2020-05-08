@@ -610,13 +610,35 @@ A volcano plot maps fold change on the x axis against significance on the y-axis
 We create the plot for all comparisons available in the data.
 The *top 10* differentially regulated genes are labeled.
 
-```{r volcano_plot}
+```{r volcano_plot, fig.width = 12, fig.height = 6, results = ‘asis’}
 
 deseq_result_frame %>%
   dplyr::select(comparison) %>%
   dplyr::distinct() %>%
   dplyr::pull() %>%
   purrr::walk(function(comparison_name) {
+    # Get table of significantly up- and down-regulated genes
+    tibble::tibble(
+      property = c(
+        "Number of up-regulated genes",
+        "Number of differentially expressed up-regulated genes",
+        "Number of down-regulated genes",
+        "Number of differentially expressed down-regulated genes"
+      ),
+      value = c(
+        # Number of up-regulated genes
+        deseq_result_frame %>% dplyr::filter(log2FoldChange > 0) %>% nrow(),
+        # Number of differentially expressed up-regulated genes
+        deseq_result_frame %>% dplyr::filter(log2FoldChange > 0 & padj <= 0.05) %>% nrow(),
+        # Number of down-regulated genes
+        deseq_result_frame %>% dplyr::filter(log2FoldChange < 0) %>% nrow(),
+        # Number of differentially expressed down-regulated genes
+        deseq_result_frame %>% dplyr::filter(log2FoldChange < 0 & padj <= 0.05) %>% nrow()
+      )
+    ) %>%
+      knitr::kable() %>%
+      print()
+    # Create volcano plot
     volcano_plot <- deseq_result_frame %>%
       dplyr::filter(comparison == comparison_name) %>%
       # Remove entries that cannot be drawn
