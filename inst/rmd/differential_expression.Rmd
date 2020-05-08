@@ -627,13 +627,21 @@ deseq_result_frame %>%
       ),
       value = c(
         # Number of up-regulated genes
-        deseq_result_frame %>% dplyr::filter(log2FoldChange > 0) %>% nrow(),
+        deseq_result_frame %>%
+          dplyr::filter(log2FoldChange > 0) %>%
+          nrow(),
         # Number of differentially expressed up-regulated genes
-        deseq_result_frame %>% dplyr::filter(log2FoldChange > 0 & padj <= 0.05) %>% nrow(),
+        deseq_result_frame %>%
+          dplyr::filter(log2FoldChange > 0 & padj <= 0.05) %>%
+          nrow(),
         # Number of down-regulated genes
-        deseq_result_frame %>% dplyr::filter(log2FoldChange < 0) %>% nrow(),
+        deseq_result_frame %>%
+          dplyr::filter(log2FoldChange < 0) %>%
+          nrow(),
         # Number of differentially expressed down-regulated genes
-        deseq_result_frame %>% dplyr::filter(log2FoldChange < 0 & padj <= 0.05) %>% nrow()
+        deseq_result_frame %>%
+          dplyr::filter(log2FoldChange < 0 & padj <= 0.05) %>%
+          nrow()
       )
     ) %>%
       knitr::kable() %>%
@@ -660,7 +668,7 @@ deseq_result_frame %>%
       ggplot2::xlab(expression(log[2](fc))) +
       ggplot2::ylab(expression(-log[10](adjusted ~ p ~ value))) +
       ggplot2::labs(colour = "Significance") +
-      ggthemes::theme_tufte(base_family = "sans") +
+      ggplot2::theme_minimal() +
       ggrepel::geom_text_repel(
         data = . %>%
           dplyr::arrange(padj) %>%
