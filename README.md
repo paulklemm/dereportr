@@ -135,6 +135,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-05-08*
+  - Improve heat map output and add table of DE genes. Bump version to `0.0.5`
 - *2020-03-23*
   - Improve description and layout of analysis doc. Bump version to `0.0.4`
 - *2020-03-14*
