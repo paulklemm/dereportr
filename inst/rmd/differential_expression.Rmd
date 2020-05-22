@@ -617,6 +617,9 @@ deseq_result_frame %>%
   dplyr::distinct() %>%
   dplyr::pull() %>%
   purrr::walk(function(comparison_name) {
+    # Get data frame that is already filtered for the current comparison
+    deseq_result_frame_comparison <- deseq_result_frame %>%
+      dplyr::filter(comparison == comparison_name)
     # Get table of significantly up- and down-regulated genes
     tibble::tibble(
       property = c(
@@ -627,28 +630,27 @@ deseq_result_frame %>%
       ),
       value = c(
         # Number of up-regulated genes
-        deseq_result_frame %>%
-          dplyr::filter(comparison == comparison_name & log2FoldChange > 0) %>%
+        deseq_result_frame_comparison %>%
+          dplyr::filter(log2FoldChange > 0) %>%
           nrow(),
         # Number of differentially expressed up-regulated genes
-        deseq_result_frame %>%
-          dplyr::filter(comparison == comparison_name & log2FoldChange > 0 & padj <= 0.05) %>%
+        deseq_result_frame_comparison %>%
+          dplyr::filter(log2FoldChange > 0 & padj <= 0.05) %>%
           nrow(),
         # Number of down-regulated genes
-        deseq_result_frame %>%
-          dplyr::filter(comparison == comparison_name & log2FoldChange < 0) %>%
+        deseq_result_frame_comparison %>%
+          dplyr::filter(log2FoldChange < 0) %>%
           nrow(),
         # Number of differentially expressed down-regulated genes
-        deseq_result_frame %>%
-          dplyr::filter(comparison == comparison_name & log2FoldChange < 0 & padj <= 0.05) %>%
+        deseq_result_frame_comparison %>%
+          dplyr::filter(log2FoldChange < 0 & padj <= 0.05) %>%
           nrow()
       )
     ) %>%
       knitr::kable() %>%
       print()
     # Create volcano plot
-    volcano_plot <- deseq_result_frame %>%
-      dplyr::filter(comparison == comparison_name) %>%
+    volcano_plot <- deseq_result_frame_comparison %>%
       # Remove entries that cannot be drawn
       dplyr::filter(!is.na(padj) & !is.na(log2FoldChange)) %>%
       # Draw the plot
