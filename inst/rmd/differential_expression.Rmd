@@ -628,19 +628,19 @@ deseq_result_frame %>%
       value = c(
         # Number of up-regulated genes
         deseq_result_frame %>%
-          dplyr::filter(log2FoldChange > 0) %>%
+          dplyr::filter(comparison == comparison_name & log2FoldChange > 0) %>%
           nrow(),
         # Number of differentially expressed up-regulated genes
         deseq_result_frame %>%
-          dplyr::filter(log2FoldChange > 0 & padj <= 0.05) %>%
+          dplyr::filter(comparison == comparison_name & log2FoldChange > 0 & padj <= 0.05) %>%
           nrow(),
         # Number of down-regulated genes
         deseq_result_frame %>%
-          dplyr::filter(log2FoldChange < 0) %>%
+          dplyr::filter(comparison == comparison_name & log2FoldChange < 0) %>%
           nrow(),
         # Number of differentially expressed down-regulated genes
         deseq_result_frame %>%
-          dplyr::filter(log2FoldChange < 0 & padj <= 0.05) %>%
+          dplyr::filter(comparison == comparison_name & log2FoldChange < 0 & padj <= 0.05) %>%
           nrow()
       )
     ) %>%
