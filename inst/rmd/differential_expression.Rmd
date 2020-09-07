@@ -391,6 +391,9 @@ If your samples do not cluster up in the PCA plot, there are going to be less di
 
 We plot two versions of the PCA, one with and without labels.
 
+<details>
+<summary>PCA without labels</summary>
+
 ```{r pca}
 
 pca_data <- DESeq2::plotPCA(
@@ -408,6 +411,11 @@ pca_plot <- pca_data %>%
   ggthemes::theme_tufte(base_family = "sans")
 
 pca_plot
+```
+
+</details>
+
+```{r pca-with-labels}
 pca_plot + ggrepel::geom_text_repel()
 ```
 
