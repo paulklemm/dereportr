@@ -57,9 +57,9 @@ Alternatively we can input a `count_data` data frame directly, containing a `gen
 ```{r print_parameters}
 
 # Print settings as table
-print_params <- rmd_params
+print_params <- params
 print_params$count_data <- "not displayed"
-rmyknife::print_params(rmd_params)
+rmyknife::print_params(print_params)
 
 ```
 
