@@ -3,7 +3,7 @@ title: "Differential Gene Expression Analysis"
 output:
   html_notebook:
     code_folding: hide
-    fig_height: 8
+    fig_height: 5
     fig_width: 10
 params:
   path_config_json: ""
