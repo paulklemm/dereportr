@@ -458,17 +458,17 @@ There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <
 
 | Column               | Description                                                                                                                                                                                               |
 | -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `row`                | [https://www.ensembl.org/info/genome/stable_ids/index.html](ensembl.org) gene stable ID]                                                                                                                   |
-| `baseMean`           | [https://doi.org/10.1186/s13059-014-0550-8](DESeq2) - average of the normalized count values, dividing by size factors (adjusting for different library size), taken over all samples.                    |
-| `log2FoldChange`     | [https://doi.org/10.1186/s13059-014-0550-8](DESeq2) - effect size estimate between treatment and control. A log2 fold change of 1.5 means the gene expression is increased by 2^1.5 = 2.82.               |
-| `lfcSE`              | [https://doi.org/10.1186/s13059-014-0550-8](DESeq2) - Uncertainty associated with `log2FoldChange`, representing the standard error.                                                                      |
-| `stat`               | [https://doi.org/10.1186/s13059-014-0550-8](DESeq2) - `log2FoldChange`/`lfcSE`. This is used to calculate the `pvalue`.                                                                                   |
-| `pvalue`             | [https://doi.org/10.1186/s13059-014-0550-8](DESeq2) - Probability that a fold change as strong as the observed one, or even stronger, would be seen under the situation described by the null hypothesis. |
-| `padj`               | [https://doi.org/10.1186/s13059-014-0550-8](DESeq2) - Benjamini-Hochberg adjusted `pvalue`, adjustment for false discovery rate (FDR).                                                                    |
+| `row`                | [ensembl.org](https://www.ensembl.org/info/genome/stable_ids/index.html) gene stable ID]                                                                                                                   |
+| `baseMean`           | [DESeq2](https://doi.org/10.1186/s13059-014-0550-8) - average of the normalized count values, dividing by size factors (adjusting for different library size), taken over all samples.                    |
+| `log2FoldChange`     | [DESeq2](https://doi.org/10.1186/s13059-014-0550-8) - effect size estimate between treatment and control. A log2 fold change of 1.5 means the gene expression is increased by 2^1.5 = 2.82.               |
+| `lfcSE`              | [DESeq2](https://doi.org/10.1186/s13059-014-0550-8) - Uncertainty associated with `log2FoldChange`, representing the standard error.                                                                      |
+| `stat`               | [DESeq2](https://doi.org/10.1186/s13059-014-0550-8) - `log2FoldChange`/`lfcSE`. This is used to calculate the `pvalue`.                                                                                   |
+| `pvalue`             | [DESeq2](https://doi.org/10.1186/s13059-014-0550-8) - Probability that a fold change as strong as the observed one, or even stronger, would be seen under the situation described by the null hypothesis. |
+| `padj`               | [DESeq2](https://doi.org/10.1186/s13059-014-0550-8) - Benjamini-Hochberg adjusted `pvalue`, adjustment for false discovery rate (FDR).                                                                    |
 | `comparison`         | Pairwise comparison for the current DESeq2 output.                                                                                                                                                        |
-| `external_gene_name` | [https://www.ensembl.org/info/data/biomart/index.html](Ensembl Biomart) gene name.                                                                                                                        |
-| `gene_biotype`       | [https://www.ensembl.org/info/data/biomart/index.html](Ensembl Biomart) (https://www.gencodegenes.org/pages/biotypes.html)[gene biotype].                                                                 |
-| `description`        | [https://www.ensembl.org/info/data/biomart/index.html](Ensembl Biomart) gene description.                                                                                                                 |
+| `external_gene_name` | [Ensembl Biomart](https://www.ensembl.org/info/data/biomart/index.html) gene name.                                                                                                                        |
+| `gene_biotype`       | [Ensembl Biomart](https://www.ensembl.org/info/data/biomart/index.html) (https://www.gencodegenes.org/pages/biotypes.html)[gene biotype].                                                                 |
+| `description`        | [Ensembl Biomart](https://www.ensembl.org/info/data/biomart/index.html) gene description.                                                                                                                 |
 
 #### DE genes table
 
