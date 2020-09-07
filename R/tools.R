@@ -24,7 +24,7 @@ run_differential_expression <- function(
   save_deseq_rds = TRUE,
   biomart_version = 100,
   biomart_attributes = "none",
-  clean_output = TRUE
+  clean_output = TRUE,
   minimum_count = 0
 ){
   if (path_salmon_counts == "" & is.null(count_data)) {
