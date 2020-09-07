@@ -56,7 +56,7 @@ run_differential_expression <- function(
       save_excel = save_excel,
       save_deseq_rds = save_deseq_rds,
       biomart_attributes = biomart_attributes,
-      biomart_version = biomart_version
+      biomart_version = biomart_version,
       minimum_count = minimum_count
     ),
     # Change the intermediate path to the output to avoid write access errors
