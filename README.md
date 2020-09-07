@@ -89,8 +89,9 @@ rmarkdown::render(
     save_csv = TRUE,
     save_excel = TRUE,
     save_deseq_rds = TRUE,
-    biomart_version = 97,
+    biomart_version = 100,
     biomart_attributes = "external_gene_name",
+    minimum_count = 40,
   )
 )
 
@@ -135,6 +136,8 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-09-07*
+  - Add `minimum_count` parameter where for each gene, at least one sample has to be equal or larger than this count
 - *2020-05-08*
   - Improve heat map output and add table of DE genes. Bump version to `0.0.5`
 - *2020-03-23*

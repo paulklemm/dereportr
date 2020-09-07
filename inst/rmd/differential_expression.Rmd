@@ -134,21 +134,6 @@ if (!is.null(settings$comparisons)) {
     }
   }
 }
-
-# The order in coldata must be the same as in count_data
-# We achieve this by joining based on the id in count_data
-col_data <- tibble::tibble(
-  id = count_data %>%
-    # Get column names
-    colnames() %>%
-    # Remove "gene_id" column which is the first one
-    .[2:length(.)]
-) %>%
-  dplyr::left_join(
-    col_data,
-    by = c("id" = "sample_name")
-  )
-
 ```
 
 Now we conduct some checks on the input tables to see if everything is fine.
@@ -177,7 +162,35 @@ col_data %<>%
 count_data %<>%
   dplyr::mutate_if(is.double, round) %>%
   dplyr::mutate_if(is.double, as.integer)
+
+# Filter out genes where no samples contains more than minimum_gene_count
+entries_satisfying_mincount <- count_data %>%
+  tidyr::pivot_longer(-gene_id, values_to = "count") %>%
+  dplyr::group_by(gene_id) %>%
+  dplyr::summarise(max_count = max(count)) %>%
+  dplyr::filter(max_count >= params$minimum_count) %>%
+  dplyr::select(gene_id) %>%
+  dplyr::pull()
+
+count_data <- count_data %>%
+  dplyr::filter(gene_id %in% entries_satisfying_mincount)
+
+# The order in coldata must be the same as in count_data
+# We achieve this by joining based on the id in count_data
+col_data <- tibble::tibble(
+  id = count_data %>%
+    # Get column names
+    colnames() %>%
+    # Remove "gene_id" column which is the first one
+    .[2:length(.)]
+) %>%
+  dplyr::left_join(
+    col_data,
+    by = c("id" = "sample_name")
+  )
 ```
+
+We work with `r length(entries_satisfying_mincount)` genes where at least one sample has a minimum count of `r params$minimum_count`.
 
 Here are the top entries of the raw count table:
 

@@ -13,6 +13,7 @@
 #' @param biomart_attributes Attach biomart attributes to the resulting table
 #' @param biomart_version Specify Ensembl version. Only required if biomart_attributes are defined
 #' @param clean_output Clean intermediate rmarkdown render files
+#' @param minimum_count For each gene at least one sample must equal or larger than this value to be included in the analysis
 run_differential_expression <- function(
   path_config_json,
   path_salmon_counts = "",
@@ -24,6 +25,7 @@ run_differential_expression <- function(
   biomart_version = 100,
   biomart_attributes = "none",
   clean_output = TRUE
+  minimum_count = 0
 ){
   if (path_salmon_counts == "" & is.null(count_data)) {
     stop("You have to either specify 'path_salmon_counts' or 'count_data'")
@@ -55,6 +57,7 @@ run_differential_expression <- function(
       save_deseq_rds = save_deseq_rds,
       biomart_attributes = biomart_attributes,
       biomart_version = biomart_version
+      minimum_count = minimum_count
     ),
     # Change the intermediate path to the output to avoid write access errors
     intermediates_dir = out_path,
