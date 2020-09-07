@@ -15,6 +15,7 @@ params:
   save_deseq_rds: TRUE
   biomart_version: 100
   biomart_attributes: "none"
+  minimum_count: 0
 ---
 
 This document contains many quality control plots of the differential expression (DE) analysis of your data.
@@ -56,11 +57,9 @@ Alternatively we can input a `count_data` data frame directly, containing a `gen
 ```{r print_parameters}
 
 # Print settings as table
-tibble::tibble(
-  name = c("path_config_json", "path_salmon_counts", "out_path", "save_csv", "save_excel", "save_deseq_rds", "biomart_version", "biomart_attributes"),
-  setting = c(params$path_config_json, params$path_salmon_counts, params$out_path, params$save_csv, params$save_excel, params$save_deseq_rds, params$biomart_version, params$biomart_attributes %>% paste(collapse = ", "))
-) %>%
-  knitr::kable()
+print_params <- rmd_params
+print_params$count_data <- "not displayed"
+rmyknife::print_params(rmd_params)
 
 ```
 
