@@ -453,14 +453,7 @@ deseq_result_frame %>%
   dplyr::mutate_if(is.double, function(x) {
     return(round(x, 4))
   }) %>%
-  DT::datatable(
-    extensions = "Buttons",
-    options = list(
-      dom = "Bfrtip",
-      buttons = c("copy", "csv", "excel", "pdf", "print")
-    ),
-    filter = "top"
-  )
+  rmyknife::dt_datatable()
 ```
 
 
