@@ -21,7 +21,7 @@ run_differential_expression <- function(
   save_csv = TRUE,
   save_excel = TRUE,
   save_deseq_rds = TRUE,
-  biomart_version = 97,
+  biomart_version = 100,
   biomart_attributes = "none",
   clean_output = TRUE
 ){
