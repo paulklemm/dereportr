@@ -138,6 +138,7 @@ xaringan::infinite_moon_reader(
 
 - *2020-09-07*
   - Add `minimum_count` parameter where for each gene, at least one sample has to be equal or larger than this count
+  - Bump version to `0.0.6`
 - *2020-05-08*
   - Improve heat map output and add table of DE genes. Bump version to `0.0.5`
 - *2020-03-23*
