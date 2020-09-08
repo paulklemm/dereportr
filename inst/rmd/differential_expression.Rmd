@@ -415,7 +415,7 @@ pca_plot
 
 </details>
 
-```{r pca-with-labels, fig.width = 7, fig.height = 7}}
+```{r pca-with-labels, fig.width = 7, fig.height = 7}
 pca_plot + ggrepel::geom_text_repel()
 ```
 
