@@ -394,7 +394,7 @@ We plot two versions of the PCA, one with and without labels.
 <details>
 <summary>PCA without labels</summary>
 
-```{r pca, fig.width = 7, fig.height = 7}
+```{r pca, fig.width = 10, fig.height = 10}
 
 pca_data <- DESeq2::plotPCA(
   DESeq2::vst(deseq_result, blind = FALSE),
@@ -415,7 +415,7 @@ pca_plot
 
 </details>
 
-```{r pca-with-labels, fig.width = 7, fig.height = 7}
+```{r pca-with-labels, fig.width = 10, fig.height = 10}
 pca_plot + ggrepel::geom_text_repel()
 ```
 
