@@ -42,6 +42,8 @@ knitr::opts_chunk$set(
   )
 )
 
+rmd_params <- params
+
 ```
 
 ## {.tabset}
@@ -71,15 +73,15 @@ Additionally, we load the json file containing group assignments for each sample
 
 ```{r load_data, message = FALSE}
 
-settings <- jsonlite::read_json(params$path_config_json)
+settings <- jsonlite::read_json(rmd_params$path_config_json)
 
-if (!is.null(params$count_data)) {
+if (!is.null(rmd_params$count_data)) {
   message("Using count_data dataframe provided as paramter")
-  count_data <- params$count_data
+  count_data <- rmd_params$count_data
 } else {
   message("Loading counts from Salmon count CSV file")
   count_data <- readr::read_csv(
-    params$path_salmon_counts,
+    rmd_params$path_salmon_counts,
     progress = FALSE
   )
 }
@@ -184,7 +186,7 @@ entries_satisfying_mincount <- count_data %>%
   tidyr::pivot_longer(-gene_id, values_to = "count") %>%
   dplyr::group_by(gene_id) %>%
   dplyr::summarise(max_count = max(count)) %>%
-  dplyr::filter(max_count >= params$minimum_count) %>%
+  dplyr::filter(max_count >= rmd_params$minimum_count) %>%
   dplyr::select(gene_id) %>%
   dplyr::pull()
 
@@ -192,7 +194,7 @@ count_data <- count_data %>%
   dplyr::filter(gene_id %in% entries_satisfying_mincount)
 ```
 
-We work with `r length(entries_satisfying_mincount)` genes where at least one sample has a minimum count of `r params$minimum_count`.
+We work with `r length(entries_satisfying_mincount)` genes where at least one sample has a minimum count of `r rmd_params$minimum_count`.
 
 Here are the top entries of the raw count table:
 
@@ -283,18 +285,18 @@ This will be done using the [rmyknife package](https://github.com/paulklemm/rmyk
 # For some reason caching this creates problems with the attached deseq_result frame
 # To avoid this, we created a memoized version of the attach_biomart function
 
-if (params$biomart_attributes != "none") {
+if (rmd_params$biomart_attributes != "none") {
   paste0(
     "Attaching biomart variables ",
-    params$biomart_attributes
+    rmd_params$biomart_attributes
   ) %>%
     message()
 
   deseq_result_frame %<>%
     rmyknife::attach_biomart(
-      ensembl_version = params$biomart_version,
+      ensembl_version = rmd_params$biomart_version,
       ensembl_id_var = "row",
-      attributes = params$biomart_attributes,
+      attributes = rmd_params$biomart_attributes,
     )
 }
 ```
@@ -305,9 +307,9 @@ With the differential expression analysis complete we can now store away the res
 
 ```{r output_deseq_results, cache = FALSE}
 
-out_path_de_files <- file.path(params$out_path, "deseq_diff")
+out_path_de_files <- file.path(rmd_params$out_path, "deseq_diff")
 
-if (params$out_path != "") {
+if (rmd_params$out_path != "") {
   paste0(
     "You set the output file path to ",
     out_path_de_files
@@ -316,7 +318,7 @@ if (params$out_path != "") {
   # Create the folder
   dir.create(out_path_de_files)
   # Save csv
-  if (params$save_csv) {
+  if (rmd_params$save_csv) {
     # Get proper path
     csv_path <- file.path(
       out_path_de_files,
@@ -335,7 +337,7 @@ if (params$out_path != "") {
     )
   }
   # Save Excel
-  if (params$save_excel) {
+  if (rmd_params$save_excel) {
     # Get proper path
     excel_path <- file.path(
       out_path_de_files,
@@ -359,7 +361,7 @@ if (params$out_path != "") {
     )
   }
   # Save RDS
-  if (params$save_deseq_rds) {
+  if (rmd_params$save_deseq_rds) {
     # Get proper path
     rds_path <- file.path(
       out_path_de_files,
