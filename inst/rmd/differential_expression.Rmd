@@ -16,6 +16,7 @@ params:
   biomart_version: 100
   biomart_attributes: "none"
   minimum_count: 0
+  minimum_padj: 0.05
 ---
 
 This document contains many quality control plots of the differential expression (DE) analysis of your data.
@@ -450,7 +451,7 @@ distance_matrix(deseq_result)
 
 ### Differentially Expressed (DE) Genes
 
-There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= 0.05) %>% nrow()` entries differentially expressed.
+There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <= rmd_params$minimum_padj) %>% nrow()` entries differentially expressed.
 
 *If you click on one of the download buttons above the table, give your browser a minute to process the request.*
 
@@ -475,7 +476,7 @@ There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <
 ```{r print_de_entries}
 
 deseq_result_frame %>%
-  dplyr::filter(padj <= 0.05) %>%
+  dplyr::filter(padj <= rmd_params$minimum_padj) %>%
   dplyr::mutate_if(is.double, function(x) {
     return(round(x, 4))
   }) %>%
@@ -523,7 +524,7 @@ deseq_counts %>%
       # Draw the heat map based on the current comparison
       deseq_counts_tmp <- deseq_counts %>%
         dplyr::filter(comparison == comparison_name) %>%
-        dplyr::filter(padj <= 0.05)
+        dplyr::filter(padj <= rmd_params$minimum_padj)
       if (deseq_counts_tmp %>% nrow() == 0) {
         return()
       }
@@ -573,7 +574,7 @@ deseq_counts %>%
   )
 
 # deseq_counts %>%
-#   dplyr::filter(padj <= 0.05) %>%
+#   dplyr::filter(padj <= rmd_params$minimum_padj) %>%
 #   # Create adjusted count column suitable for plotting
 #   dplyr::mutate(adj_count = log10(count + 1)) %>%
 #   # Heatmap.2
@@ -667,7 +668,7 @@ deseq_result_frame %>%
           nrow(),
         # Number of differentially expressed up-regulated genes
         deseq_result_frame_comparison %>%
-          dplyr::filter(log2FoldChange > 0 & padj <= 0.05) %>%
+          dplyr::filter(log2FoldChange > 0 & padj <= rmd_params$minimum_padj) %>%
           nrow(),
         # Number of down-regulated genes
         deseq_result_frame_comparison %>%
@@ -675,7 +676,7 @@ deseq_result_frame %>%
           nrow(),
         # Number of differentially expressed down-regulated genes
         deseq_result_frame_comparison %>%
-          dplyr::filter(log2FoldChange < 0 & padj <= 0.05) %>%
+          dplyr::filter(log2FoldChange < 0 & padj <= rmd_params$minimum_padj) %>%
           nrow()
       )
     ) %>%
@@ -690,7 +691,7 @@ deseq_result_frame %>%
         ggplot2::aes(
           x = log2FoldChange,
           y = -log10(padj),
-          color = (padj <= 0.05) %>% ifelse(., "significant", "not significant")
+          color = (padj <= rmd_params$minimum_padj) %>% ifelse(., "significant", "not significant")
         )
       ) +
       ggplot2::geom_point(
@@ -711,7 +712,7 @@ deseq_result_frame %>%
         size = 3
       ) +
       ggplot2::geom_hline(
-        yintercept = -log10(0.05),
+        yintercept = -log10(rmd_params$minimum_padj),
         linetype = "dotted"
       )
     # Print volcano plot
