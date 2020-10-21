@@ -136,6 +136,9 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-10-21*
+  - Add `minimum_padj` parameter setting the minimum threshold for padj for a gene to be differentially expressed
+  - Bump version to `0.1.0`
 - *2020-09-07*
   - Add `minimum_count` parameter where for each gene, at least one sample has to be equal or larger than this count
   - Bump version to `0.0.6`
