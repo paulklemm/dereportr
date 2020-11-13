@@ -8,6 +8,7 @@ goterm_analysis_of_all_comparisons(
   deseq2_diff_path,
   out_path,
   simplify_ontologies = TRUE,
+  significance_cutoff = 0.05,
   do_gse = TRUE,
   debug = FALSE
 )
@@ -18,6 +19,8 @@ goterm_analysis_of_all_comparisons(
 \item{out_path}{Path to output files}
 
 \item{simplify_ontologies}{See mygo::createHTMLReport}
+
+\item{significance_cutoff}{Significance cutoff for both adjusted q-value and GO-term analysis}
 
 \item{do_gse}{See mygo::createHTMLReport}
 

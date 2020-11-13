@@ -80,6 +80,7 @@ run_differential_expression <- function(
 #' @param deseq2_diff_path Path to deseq2_diff.csv created by nfRNAseqDESeq2
 #' @param out_path Path to output files
 #' @param simplify_ontologies See mygo::createHTMLReport
+#' @param significance_cutoff Significance cutoff for both adjusted q-value and GO-term analysis
 #' @param do_gse See mygo::createHTMLReport
 #' @param debug Save dataframe passed to mygo to allow for debugging
 #' @examples
@@ -91,6 +92,7 @@ goterm_analysis_of_all_comparisons <- function(
   deseq2_diff_path,
   out_path,
   simplify_ontologies = TRUE,
+  significance_cutoff = 0.05,
   do_gse = TRUE,
   debug = FALSE
 ) {
@@ -147,6 +149,7 @@ goterm_analysis_of_all_comparisons <- function(
             deseq_output %>% mygo::createHTMLReport(
               output_path = out_path_current_comparison,
               simplify_ontologies = simplify_ontologies,
+              significance_cutoff = significance_cutoff,
               do_gse = do_gse,
               # Always use background
               use_background = TRUE

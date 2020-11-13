@@ -12,9 +12,11 @@ run_differential_expression(
   save_csv = TRUE,
   save_excel = TRUE,
   save_deseq_rds = TRUE,
-  biomart_version = 97,
+  biomart_version = 100,
   biomart_attributes = "none",
-  clean_output = TRUE
+  clean_output = TRUE,
+  minimum_count = 0,
+  minimum_padj = 0.05
 )
 }
 \arguments{
@@ -37,6 +39,10 @@ run_differential_expression(
 \item{biomart_attributes}{Attach biomart attributes to the resulting table}
 
 \item{clean_output}{Clean intermediate rmarkdown render files}
+
+\item{minimum_count}{For each gene at least one sample must equal or larger than this value to be included in the analysis}
+
+\item{minimum_padj}{Minimum padj value for a gene to be considered differentially expressed}
 }
 \description{
 Helper function for rendering the differential expression RMarkdown document
