@@ -8,7 +8,9 @@ output:
 params:
   path_config_json: ""
   path_salmon_counts: ""
+  path_salmon_tpm: ""
   count_data: NULL
+  count_normalized: NULL
   out_path: ""
   save_csv: TRUE
   save_excel: TRUE
@@ -62,6 +64,7 @@ Alternatively we can input a `count_data` data frame directly, containing a `gen
 # Print settings as table
 print_params <- params
 print_params$count_data <- "not displayed"
+print_params$count_data_normalized <- "not displayed"
 rmyknife::print_params(print_params)
 
 ```
@@ -82,6 +85,18 @@ if (!is.null(rmd_params$count_data)) {
   message("Loading counts from Salmon count CSV file")
   count_data <- readr::read_csv(
     rmd_params$path_salmon_counts,
+    progress = FALSE
+  )
+}
+
+# Same for normalized counts
+if (!is.null(rmd_params$count_data_normalized)) {
+  message("Using count_data_normalized dataframe provided as paramter")
+  count_data_normalized <- rmd_params$count_data_normalized
+} else {
+  message("Loading counts from Salmon count CSV file")
+  count_data_normalized <- readr::read_csv(
+    rmd_params$path_salmon_tpm,
     progress = FALSE
   )
 }
@@ -171,22 +186,28 @@ undefined_samples$id %>%
       dplyr::select(-dplyr::contains(na_sample))
   })
 
-col_data %<>%
+col_data <-
+  col_data %>%
   dplyr::filter(!is.na(treatment)) %>%
   # Convert treatment variable to factor as required by DESeq2
   dplyr::mutate(treatment = as.factor(treatment))
 
 # Convert counts to integer to comply with DEseq2 standards
-count_data %<>%
+count_data <-
+  count_data %>%
   dplyr::mutate_if(is.double, round) %>%
   dplyr::mutate_if(is.double, as.integer)
 
-# Filter out genes where no samples contains more than minimum_gene_count
-entries_satisfying_mincount <- count_data %>%
-  tidyr::pivot_longer(-gene_id, values_to = "count") %>%
-  dplyr::group_by(gene_id) %>%
-  dplyr::summarise(max_count = max(count)) %>%
-  dplyr::filter(max_count >= rmd_params$minimum_count) %>%
+# Filter out genes where no treatment contains more than minimum_gene_count on average
+entries_satisfying_mincount <- count_data_normalized %>%
+  tidyr::pivot_longer(-gene_id, values_to = "count_normalized") %>%
+  # Attach treatment group
+  dplyr::left_join(col_data, by = c("name" = "id")) %>%
+  # Filter samples that are not associated with any treatments
+  dplyr::filter(!is.na(treatment)) %>%
+  dplyr::group_by(gene_id, treatment) %>%
+  dplyr::summarise(mean_count_normalized = mean(count_normalized)) %>%
+  dplyr::filter(mean_count_normalized >= rmd_params$minimum_count) %>%
   dplyr::select(gene_id) %>%
   dplyr::pull()
 
@@ -194,7 +215,7 @@ count_data <- count_data %>%
   dplyr::filter(gene_id %in% entries_satisfying_mincount)
 ```
 
-We work with `r length(entries_satisfying_mincount)` genes where at least one sample has a minimum count of `r rmd_params$minimum_count`.
+We work with `r length(entries_satisfying_mincount)` genes where at least one treatment has a mean gene normalized count (in Salmon counts `TPM`) expression of `r rmd_params$minimum_count`.
 
 Here are the top entries of the raw count table:
 

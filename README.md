@@ -70,6 +70,7 @@ You can use the built-in render function for the DESeq2 RMarkdown document.
 nfRNAseqDESeq2::run_differential_expression(
   path_config_json = "philipp_config.json",
   path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
+  path_salmon_tpm = "nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv",
   out_path = getwd()
 )
 ```
@@ -85,6 +86,7 @@ rmarkdown::render(
   params = list(
     path_config_json = "philipp_config.json",
     path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
+    path_salmon_tpm = "nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv",
     out_path = output_path,
     save_csv = TRUE,
     save_excel = TRUE,
@@ -102,6 +104,7 @@ rmarkdown::render(
   params = list(
     path_config_json = "philipp_config.json",
     path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
+    path_salmon_tpm = "nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv",
     out_path = output_path
   ),
   # Change the intermediate path to the output to avoid write access errors
@@ -127,6 +130,7 @@ xaringan::infinite_moon_reader(
   params = list(
     path_config_json = "groups.json",
     path_salmon_counts = "results/salmon/salmon_merged_gene_counts.csv",
+    path_salmon_tpm = "results/salmon/salmon_merged_gene_tpm.csv",
     out_path = "./",
     biomart_attributes = c("external_gene_name", "gene_biotype")
   )
@@ -136,6 +140,9 @@ xaringan::infinite_moon_reader(
 
 ## ⏳ History
 
+- *2020-11-20*
+  - Add `count_normalized` and `path_salmon_tpm` variables that allow for proper filtering of minimum expressed genes based on counts normalized on library size
+  - Bump version to `0.2.0`
 - *2020-10-21*
   - Add `minimum_padj` parameter setting the minimum threshold for padj for a gene to be differentially expressed
   - Bump version to `0.1.0`

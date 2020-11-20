@@ -5,8 +5,10 @@
 #'
 #' @param path_config_json Path to experiment design json file
 #' @param path_salmon_counts Path to salmon counts file
+#' @param path_salmon_tpm Path to salmon counts file
 #' @param out_path Path for output
-#' @param count_data Count data dataframe. Replaces path_salmon_counts
+#' @param count_data Count data. Replaces path_salmon_counts
+#' @param count_data_normalized Normalized count dataframe. Replaces path_salmon_tpm
 #' @param save_csv Output differentially expressed entries as csv file
 #' @param save_excel Output differentially expressed entries as excel file
 #' @param save_deseq_rds Output DESeq2 result object as rds file
@@ -18,6 +20,7 @@
 run_differential_expression <- function(
   path_config_json,
   path_salmon_counts = "",
+  path_salmon_tpm = "",
   out_path,
   count_data = NULL,
   save_csv = TRUE,
@@ -52,8 +55,10 @@ run_differential_expression <- function(
     params = list(
       path_config_json = path_config_json,
       path_salmon_counts = path_salmon_counts,
+      path_salmon_tpm = path_salmon_tpm,
       out_path = out_path,
       count_data = count_data,
+      count_data_normalized = count_data_normalized,
       save_csv = save_csv,
       save_excel = save_excel,
       save_deseq_rds = save_deseq_rds,
