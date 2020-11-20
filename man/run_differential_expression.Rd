@@ -10,6 +10,7 @@ run_differential_expression(
   path_salmon_tpm = "",
   out_path,
   count_data = NULL,
+  count_data_normalized = NULL,
   save_csv = TRUE,
   save_excel = TRUE,
   save_deseq_rds = TRUE,
@@ -31,6 +32,8 @@ run_differential_expression(
 
 \item{count_data}{Count data. Replaces path_salmon_counts}
 
+\item{count_data_normalized}{Normalized count dataframe. Replaces path_salmon_tpm}
+
 \item{save_csv}{Output differentially expressed entries as csv file}
 
 \item{save_excel}{Output differentially expressed entries as excel file}
@@ -46,8 +49,6 @@ run_differential_expression(
 \item{minimum_count}{For each gene at least one sample must equal or larger than this value to be included in the analysis}
 
 \item{minimum_padj}{Minimum padj value for a gene to be considered differentially expressed}
-
-\item{count_data_normalized}{Normalized count dataframe. Replaces path_salmon_tpm}
 }
 \description{
 Helper function for rendering the differential expression RMarkdown document
