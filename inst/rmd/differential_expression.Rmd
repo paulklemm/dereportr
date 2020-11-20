@@ -10,7 +10,7 @@ params:
   path_salmon_counts: ""
   path_salmon_tpm: ""
   count_data: NULL
-  count_normalized: NULL
+  count_data_normalized: NULL
   out_path: ""
   save_csv: TRUE
   save_excel: TRUE
