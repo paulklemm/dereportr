@@ -23,6 +23,7 @@ run_differential_expression <- function(
   path_salmon_tpm = "",
   out_path,
   count_data = NULL,
+  count_data_normalized = NULL,
   save_csv = TRUE,
   save_excel = TRUE,
   save_deseq_rds = TRUE,
