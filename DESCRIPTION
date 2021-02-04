@@ -27,4 +27,5 @@ Imports:
     ashr,
     ggthemes,
     ggrepel,
-    mygo
+    mygo,
+    glue
