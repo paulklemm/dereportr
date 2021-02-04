@@ -28,4 +28,5 @@ Imports:
     ggthemes,
     ggrepel,
     mygo,
-    glue
+    glue,
+    rmyknife
