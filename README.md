@@ -7,15 +7,11 @@
 - [🏀 Example](#🏀-example)
   - [Sample group assignment json file](#sample-group-assignment-json-file)
   - [Rendering the analysis document](#rendering-the-analysis-document)
-  - [🐛 Debug Mode](#🐛-debug-mode)
 - [⏳ History](#⏳-history)
 
 <!-- /TOC -->
 
 This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/packages/release/bioc/vignettes/DESeq2/inst/doc/DESeq2.html).
-
-The basis for the analysis is the [salmon](https://combine-lab.github.io/salmon/) output of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline.
-Since the pipeline is lacking support for differential gene expression, this package intents to midigate this problem.
 
 ## 💾 Installation
 
@@ -67,10 +63,12 @@ When there are no comparisons specified, the tool will automatically compare all
 You can use the built-in render function for the DESeq2 RMarkdown document.
 
 ```r
+count_data <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv")
+count_data_normalized <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv")
 nfRNAseqDESeq2::run_differential_expression(
   path_config_json = "philipp_config.json",
-  path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
-  path_salmon_tpm = "nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv",
+  count_data = count_data,
+  count_data_normalized = count_data_normalized,
   out_path = getwd()
 )
 ```
@@ -78,33 +76,15 @@ nfRNAseqDESeq2::run_differential_expression(
 You can also use the rmarkdown render function directly if you want to customize the rendering call.
 
 ```r
-
-output_path <- getwd()
-# Render command with all parameters
-rmarkdown::render(
-  system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
-  params = list(
-    path_config_json = "philipp_config.json",
-    path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
-    path_salmon_tpm = "nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv",
-    out_path = output_path,
-    save_csv = TRUE,
-    save_excel = TRUE,
-    save_deseq_rds = TRUE,
-    biomart_version = 100,
-    biomart_attributes = "external_gene_name",
-    minimum_count = 40,
-  )
-)
-
-# Second example
+count_data <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv")
+count_data_normalized <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv")
 # Render command utilizing the default parameters
 rmarkdown::render(
   system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
   params = list(
     path_config_json = "philipp_config.json",
-    path_salmon_counts = "nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv",
-    path_salmon_tpm = "nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv",
+    count_data = count_data,
+    count_data_normalized = count_data_normalized,
     out_path = output_path
   ),
   # Change the intermediate path to the output to avoid write access errors
@@ -119,27 +99,10 @@ rmarkdown::render(
 )
 ```
 
-### 🐛 Debug Mode
-
-For debugging the RMarkdown script, it's advised to use xaringan.
-
-```r
-
-xaringan::infinite_moon_reader(
-  "inst/rmd/differential_expression.Rmd",
-  params = list(
-    path_config_json = "groups.json",
-    path_salmon_counts = "results/salmon/salmon_merged_gene_counts.csv",
-    path_salmon_tpm = "results/salmon/salmon_merged_gene_tpm.csv",
-    out_path = "./",
-    biomart_attributes = c("external_gene_name", "gene_biotype")
-  )
-)
-
-```
-
 ## ⏳ History
 
+- *2021-02-04*
+  - Drop support for providing flat files, require to provide data frames
 - *2020-11-20*
   - Add `count_normalized` and `path_salmon_tpm` variables that allow for proper filtering of minimum expressed genes based on counts normalized on library size
   - Bump version to `0.2.0`
