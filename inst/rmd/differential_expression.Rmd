@@ -10,9 +10,7 @@ params:
   count_data: NULL
   count_data_normalized: NULL
   out_path: ""
-  save_csv: TRUE
-  save_excel: TRUE
-  save_deseq_rds: TRUE
+  save_intermediate: TRUE
   biomart_version: 100
   biomart_attributes: "none"
   minimum_count: 0
@@ -308,49 +306,39 @@ With the differential expression analysis complete we can now store away the res
 
 ```{r output_deseq_results, cache = FALSE}
 
-out_path_de_files <- file.path(rmd_params$out_path, "deseq_diff")
+out_path_results <- file.path(rmd_params$out_path, "deseq_diff")
+out_path_intermediates <- file.path(out_path_results, "intermediates")
+
 
 if (rmd_params$out_path != "") {
-  glue::glue("You set the output file path to {out_path_de_files}") %>%  message()
+  glue::glue("You set the output file path to {out_path_results}") %>%  message()
   # Create the folder
-  dir.create(out_path_de_files)
+  dir.create(out_path_results)
   # Save csv
-  if (rmd_params$save_csv) {
-    # Get proper path
-    csv_path <- file.path(out_path_de_files, "deseq2_diff.csv")
-    # Print status message
-    glue::glue("Save CSV file to {csv_path}") %>% message()  
-    # Save CSV
-    readr::write_csv(
-      x = deseq_result_frame,
-      path = csv_path
-    )
-  }
+  csv_path <- file.path(out_path_results, "deseq2_diff.csv")
+  glue::glue("Save CSV file to {csv_path}") %>% message()
+  readr::write_csv(x = deseq_result_frame, file = csv_path)
   # Save Excel
-  if (rmd_params$save_excel) {
-    # Get proper path
-    excel_path <- file.path(out_path_de_files, "deseq2_diff.xlsx")
-    # Print status message
-    glue::glue("Save Excel file to {excel_path}") %>% message()
-    # Save Excel
-    rmyknife::write_xls(dat = deseq_result_frame, ExcelFileName = excel_path)
-  }
+  excel_path <- file.path(out_path_results, "deseq2_diff.xlsx")
+  glue::glue("Save Excel file to {excel_path}") %>% message()
+  rmyknife::write_xls(dat = deseq_result_frame, ExcelFileName = excel_path)
   # Save RDS
-  if (rmd_params$save_deseq_rds) {
+  if (rmd_params$save_intermediate) {
+    dir.create(out_path_intermediates)
     # deseq2_diff
-    deseq2_diff_path <- file.path(out_path_de_files, "deseq2_diff.rds")
+    deseq2_diff_path <- file.path(out_path_intermediates, "deseq2_diff.rds")
     glue::glue("Save deseq2_diff file to {deseq2_diff_path}") %>% message()
     saveRDS(object = deseq_result, file = deseq2_diff_path)
     # col_data
-    col_data_path <- file.path(out_path_de_files, "col_data.rds")
+    col_data_path <- file.path(out_path_intermediates, "col_data.rds")
     glue::glue("Save col_data file to {col_data_path}") %>% message()
     saveRDS(object = deseq_result, file = col_data_path)
     # count_data
-    count_data_path <- file.path(out_path_de_files, "count_data.csv")
+    count_data_path <- file.path(out_path_intermediates, "count_data.csv")
     glue::glue("Save count_data file to {count_data_path}") %>% message()
     readr::write_csv(x = deseq_result, file = count_data_path)
     # count_data_normalized
-    count_data_normalized_path <- file.path(out_path_de_files, "count_data_normalized.csv")
+    count_data_normalized_path <- file.path(out_path_intermediates, "count_data_normalized.csv")
     glue::glue("Save count_data_normalized file to {count_data_normalized_path}") %>% message()
     readr::write_csv(x = deseq_result, file = count_data_normalized_path)
   }

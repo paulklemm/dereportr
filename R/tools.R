@@ -9,7 +9,7 @@
 #' @param count_data_normalized Normalized count dataframe. Replaces path_salmon_tpm
 #' @param save_csv Output differentially expressed entries as csv file
 #' @param save_excel Output differentially expressed entries as excel file
-#' @param save_deseq_rds Output DESeq2 result object as rds file
+#' @param save_intermediate Output intermediate files that can be used for debugging/custom analyses
 #' @param biomart_attributes Attach biomart attributes to the resulting table
 #' @param biomart_version Specify Ensembl version. Only required if biomart_attributes are defined
 #' @param clean_output Clean intermediate rmarkdown render files
@@ -22,7 +22,7 @@ run_differential_expression <- function(
   count_data_normalized = NULL,
   save_csv = TRUE,
   save_excel = TRUE,
-  save_deseq_rds = TRUE,
+  save_intermediate = TRUE,
   biomart_version = 100,
   biomart_attributes = "none",
   clean_output = TRUE,
@@ -56,7 +56,7 @@ run_differential_expression <- function(
       count_data_normalized = count_data_normalized,
       save_csv = save_csv,
       save_excel = save_excel,
-      save_deseq_rds = save_deseq_rds,
+      save_intermediate = save_intermediate,
       biomart_attributes = biomart_attributes,
       biomart_version = biomart_version,
       minimum_count = minimum_count,

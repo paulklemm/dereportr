@@ -11,7 +11,7 @@ run_differential_expression(
   count_data_normalized = NULL,
   save_csv = TRUE,
   save_excel = TRUE,
-  save_deseq_rds = TRUE,
+  save_intermediate = TRUE,
   biomart_version = 100,
   biomart_attributes = "none",
   clean_output = TRUE,
@@ -32,7 +32,7 @@ run_differential_expression(
 
 \item{save_excel}{Output differentially expressed entries as excel file}
 
-\item{save_deseq_rds}{Output DESeq2 result object as rds file}
+\item{save_intermediate}{Output intermediate files that can be used for debugging/custom analyses}
 
 \item{biomart_version}{Specify Ensembl version. Only required if biomart_attributes are defined}
 
