@@ -1,5 +1,5 @@
 
-# 🧬 🔬 nfRNAseqDESeq2
+# 🧬 🔬 dereportr
 
 <!-- TOC depthFrom:2 -->
 
@@ -15,18 +15,18 @@ This analysis largely follows the [DESeq2 vigniette](https://bioconductor.org/pa
 
 ## 💾 Installation
 
-You can install the development version of nfRNAseqDESeq2 using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) with:
+You can install the development version of dereportr using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) with:
 
 ``` r
-devtools::install_github("paulklemm/nfRNAseqDESeq2")
+devtools::install_github("paulklemm/dereportr")
 ```
 
 ## 🏀 Example
 
-The DESeq2 RMarkdown document required two important things.
+You'll need
 
 1 A json file containing the group assignments for each sample
-2 The path to the Salmon count file of the [NFCore](https://nf-co.re/) [RNAseq](https://github.com/nf-core/RNAseq) pipeline
+2 Raw as well as library-size normalized counts
 
 ### Sample group assignment json file
 
@@ -65,7 +65,7 @@ You can use the built-in render function for the DESeq2 RMarkdown document.
 ```r
 count_data <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_counts.csv")
 count_data_normalized <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv")
-nfRNAseqDESeq2::run_differential_expression(
+dereportr::run_differential_expression(
   path_config_json = "philipp_config.json",
   count_data = count_data,
   count_data_normalized = count_data_normalized,
@@ -80,7 +80,7 @@ count_data <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_count
 count_data_normalized <- readr::read_csv("nf-rnaseq/results/salmon/salmon_merged_gene_tpm.csv")
 # Render command utilizing the default parameters
 rmarkdown::render(
-  system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
+  system.file("rmd/differential_expression.Rmd", package = "dereportr"),
   params = list(
     path_config_json = "philipp_config.json",
     count_data = count_data,
@@ -103,6 +103,7 @@ rmarkdown::render(
 
 - *2021-02-04*
   - Drop support for providing flat files, require to provide data frames
+  - Change name do `dereportr`
 - *2020-11-20*
   - Add `count_normalized` and `path_salmon_tpm` variables that allow for proper filtering of minimum expressed genes based on counts normalized on library size
   - Bump version to `0.2.0`
@@ -123,9 +124,9 @@ rmarkdown::render(
 - *2020-01-23*
   - Add goterm analysis function using the mygo package `goterm_analysis_of_all_comparisons`
 - *2020-01-08*
-  - Close [Use TPM over counts file #5](https://github.com/paulklemm/nfRNAseqDESeq2/issues/5)
+  - Close [Use TPM over counts file #5](https://github.com/paulklemm/dereportr/issues/5)
 - *2020-01-07*
   - Remove old debug mode, add reference to Xaringan
-  - Add [Use TPM over counts file #5](https://github.com/paulklemm/nfRNAseqDESeq2/issues/5)
+  - Add [Use TPM over counts file #5](https://github.com/paulklemm/dereportr/issues/5)
 - *2019-11-12*
-  - Add [support for multiple conditions](https://github.com/paulklemm/nfRNAseqDESeq2/issues/4)
+  - Add [support for multiple conditions](https://github.com/paulklemm/dereportr/issues/4)

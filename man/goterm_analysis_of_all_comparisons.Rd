@@ -2,7 +2,7 @@
 % Please edit documentation in R/tools.R
 \name{goterm_analysis_of_all_comparisons}
 \alias{goterm_analysis_of_all_comparisons}
-\title{Create GO-term analysis for all comparisons of deseq2_diff.csv (created by nfRNAseqDESeq2)}
+\title{Create GO-term analysis for all comparisons of deseq2_diff.csv (created by dereportr)}
 \usage{
 goterm_analysis_of_all_comparisons(
   deseq2_diff_path,
@@ -14,7 +14,7 @@ goterm_analysis_of_all_comparisons(
 )
 }
 \arguments{
-\item{deseq2_diff_path}{Path to deseq2_diff.csv created by nfRNAseqDESeq2}
+\item{deseq2_diff_path}{Path to deseq2_diff.csv created by dereportr}
 
 \item{out_path}{Path to output files}
 
@@ -27,7 +27,7 @@ goterm_analysis_of_all_comparisons(
 \item{debug}{Save dataframe passed to mygo to allow for debugging}
 }
 \description{
-Create GO-term analysis for all comparisons of deseq2_diff.csv (created by nfRNAseqDESeq2)
+Create GO-term analysis for all comparisons of deseq2_diff.csv (created by dereportr)
 }
 \examples{
   goterm_analysis_of_all_comparisons(

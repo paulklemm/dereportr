@@ -50,7 +50,7 @@ run_differential_expression <- function(
   }
   # Render command with all parameters
   rmarkdown::render(
-    system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
+    system.file("rmd/differential_expression.Rmd", package = "dereportr"),
     params = list(
       path_config_json = path_config_json,
       out_path = out_path,
@@ -77,10 +77,10 @@ run_differential_expression <- function(
   )
 }
 
-#' Create GO-term analysis for all comparisons of deseq2_diff.csv (created by nfRNAseqDESeq2)
+#' Create GO-term analysis for all comparisons of deseq2_diff.csv (created by dereportr)
 #' @export
 #' @import mygo magrittr dplyr readr
-#' @param deseq2_diff_path Path to deseq2_diff.csv created by nfRNAseqDESeq2
+#' @param deseq2_diff_path Path to deseq2_diff.csv created by dereportr
 #' @param out_path Path to output files
 #' @param simplify_ontologies See mygo::createHTMLReport
 #' @param significance_cutoff Significance cutoff for both adjusted q-value and GO-term analysis
