@@ -321,7 +321,7 @@ out_path_intermediates <- file.path(out_path_results, "intermediates")
 if (rmd_params$out_path != "") {
   glue::glue("You set the output file path to {out_path_results}") %>%  message()
   # Create the folder
-  dir.create(out_path_results)
+  dir.create(out_path_results, recursive = TRUE)
   # Save csv
   csv_path <- file.path(out_path_results, "deseq2_diff.csv")
   glue::glue("Save CSV file to {csv_path}") %>% message()
@@ -344,11 +344,11 @@ if (rmd_params$out_path != "") {
     # count_data
     count_data_path <- file.path(out_path_intermediates, "count_data.csv")
     glue::glue("Save count_data file to {count_data_path}") %>% message()
-    readr::write_csv(x = deseq_result, file = count_data_path)
+    readr::write_csv(x = count_data, file = count_data_path)
     # count_data_normalized
     count_data_normalized_path <- file.path(out_path_intermediates, "count_data_normalized.csv")
     glue::glue("Save count_data_normalized file to {count_data_normalized_path}") %>% message()
-    readr::write_csv(x = deseq_result, file = count_data_normalized_path)
+    readr::write_csv(x = count_data_normalized, file = count_data_normalized_path)
   }
 }
 ```
