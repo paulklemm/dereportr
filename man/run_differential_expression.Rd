@@ -12,11 +12,12 @@ run_differential_expression(
   save_csv = TRUE,
   save_excel = TRUE,
   save_intermediate = TRUE,
-  biomart_version = 100,
+  ensembl_version = 101,
   biomart_attributes = "none",
   clean_output = TRUE,
   minimum_count = 0,
-  minimum_padj = 0.05
+  minimum_padj = 0.05,
+  biotypes_filter = "protein_coding"
 )
 }
 \arguments{
@@ -34,7 +35,7 @@ run_differential_expression(
 
 \item{save_intermediate}{Output intermediate files that can be used for debugging/custom analyses}
 
-\item{biomart_version}{Specify Ensembl version. Only required if biomart_attributes are defined}
+\item{ensembl_version}{Specify Ensembl version. Only required if biomart_attributes are defined}
 
 \item{biomart_attributes}{Attach biomart attributes to the resulting table}
 
@@ -43,6 +44,8 @@ run_differential_expression(
 \item{minimum_count}{For each gene at least one sample must equal or larger than this value to be included in the analysis}
 
 \item{minimum_padj}{Minimum padj value for a gene to be considered differentially expressed}
+
+\item{biotypes_filter}{Filter genes for these biotypes}
 }
 \description{
 Helper function for rendering the differential expression RMarkdown document

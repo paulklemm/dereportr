@@ -11,10 +11,11 @@
 #' @param save_excel Output differentially expressed entries as excel file
 #' @param save_intermediate Output intermediate files that can be used for debugging/custom analyses
 #' @param biomart_attributes Attach biomart attributes to the resulting table
-#' @param biomart_version Specify Ensembl version. Only required if biomart_attributes are defined
+#' @param ensembl_version Specify Ensembl version. Only required if biomart_attributes are defined
 #' @param clean_output Clean intermediate rmarkdown render files
 #' @param minimum_count For each gene at least one sample must equal or larger than this value to be included in the analysis
 #' @param minimum_padj Minimum padj value for a gene to be considered differentially expressed
+#' @param biotypes_filter Filter genes for these biotypes
 run_differential_expression <- function(
   path_config_json,
   out_path,
@@ -23,11 +24,12 @@ run_differential_expression <- function(
   save_csv = TRUE,
   save_excel = TRUE,
   save_intermediate = TRUE,
-  biomart_version = 100,
+  ensembl_version = 101,
   biomart_attributes = "none",
   clean_output = TRUE,
   minimum_count = 0,
-  minimum_padj = 0.05
+  minimum_padj = 0.05,
+  biotypes_filter = "protein_coding"
 ){
   if (path_salmon_counts == "" & is.null(count_data)) {
     stop("You have to either specify 'path_salmon_counts' or 'count_data'")
@@ -58,7 +60,8 @@ run_differential_expression <- function(
       save_excel = save_excel,
       save_intermediate = save_intermediate,
       biomart_attributes = biomart_attributes,
-      biomart_version = biomart_version,
+      ensembl_version = ensembl_version,
+      biotypes_filter = biotypes_filter,
       minimum_count = minimum_count,
       minimum_padj = minimum_padj
     ),

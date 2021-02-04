@@ -11,10 +11,11 @@ params:
   count_data_normalized: NULL
   out_path: ""
   save_intermediate: TRUE
-  biomart_version: 100
+  ensembl_version: 100
   biomart_attributes: "none"
   minimum_count: 0
   minimum_padj: 0.05
+  biotypes_filter: !r NA
 ---
 
 This document contains many quality control plots of the differential expression (DE) analysis of your data.
@@ -176,6 +177,35 @@ count_data <-
   dplyr::mutate_if(is.double, round) %>%
   dplyr::mutate_if(is.double, as.integer)
 
+```
+
+```{r remove-biotypes}
+
+# Code from trapdiff
+# Default report message.
+remove_biotypes_report <- "We keep genes of all biotypes."
+# Filter for biotypes of interest
+if (!is.na(rmd_params$biotypes_filter)) {
+  count_data <-
+    count_data %>%
+    rmyknife::attach_biomart(
+      attributes = "gene_biotype",
+      ensembl_version = rmd_params$ensembl_version,
+      verbose = FALSE
+    ) %>%
+    dplyr::filter(gene_biotype %in% rmd_params$biotypes_filter) %>%
+    # Remove gene_biotype again
+    dplyr::select(-gene_biotype)
+  remove_biotypes_report <-
+    glue::glue("We keep {count_data %>% nrow()} genes that are of bioype(s) {rmd_params$biotypes_filter}")
+}
+
+```
+
+`r remove_biotypes_report`
+
+```{r remove-mincount}
+
 # Filter out genes where no treatment contains more than minimum_gene_count on average
 entries_satisfying_mincount <- count_data_normalized %>%
   tidyr::pivot_longer(-gene_id, values_to = "count_normalized") %>%
@@ -193,7 +223,7 @@ count_data <- count_data %>%
   dplyr::filter(gene_id %in% entries_satisfying_mincount)
 ```
 
-We work with `r length(entries_satisfying_mincount)` genes where at least one treatment has a mean gene normalized count (in Salmon counts `TPM`) expression of `r rmd_params$minimum_count`.
+We work with `r length(entries_satisfying_mincount)` genes where at least one treatment has a mean gene normalized count expression of `r rmd_params$minimum_count`.
 
 Here are the top entries of the raw count table:
 
@@ -293,7 +323,7 @@ if (rmd_params$biomart_attributes != "none") {
 
   deseq_result_frame %<>%
     rmyknife::attach_biomart(
-      ensembl_version = rmd_params$biomart_version,
+      ensembl_version = rmd_params$ensembl_version,
       ensembl_id_var = "row",
       attributes = rmd_params$biomart_attributes,
     )
