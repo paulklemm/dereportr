@@ -1,14 +1,12 @@
 ---
 title: "Differential Gene Expression Analysis"
 output:
-  html_notebook:
+  html_document:
     code_folding: hide
     fig_height: 5
     fig_width: 10
 params:
   path_config_json: ""
-  path_salmon_counts: ""
-  path_salmon_tpm: ""
   count_data: NULL
   count_data_normalized: NULL
   out_path: ""
@@ -44,6 +42,8 @@ knitr::opts_chunk$set(
   )
 )
 
+ggplot2::theme_set(ggplot2::theme_light())
+
 rmd_params <- params
 
 ```
@@ -78,28 +78,8 @@ Additionally, we load the json file containing group assignments for each sample
 
 settings <- jsonlite::read_json(rmd_params$path_config_json)
 
-if (!is.null(rmd_params$count_data)) {
-  message("Using count_data dataframe provided as paramter")
-  count_data <- rmd_params$count_data
-} else {
-  message("Loading counts from Salmon count CSV file")
-  count_data <- readr::read_csv(
-    rmd_params$path_salmon_counts,
-    progress = FALSE
-  )
-}
-
-# Same for normalized counts
-if (!is.null(rmd_params$count_data_normalized)) {
-  message("Using count_data_normalized dataframe provided as paramter")
-  count_data_normalized <- rmd_params$count_data_normalized
-} else {
-  message("Loading counts from Salmon count CSV file")
-  count_data_normalized <- readr::read_csv(
-    rmd_params$path_salmon_tpm,
-    progress = FALSE
-  )
-}
+count_data <- rmd_params$count_data
+count_data_normalized <- rmd_params$count_data_normalized
 
 ```
 
@@ -331,26 +311,15 @@ With the differential expression analysis complete we can now store away the res
 out_path_de_files <- file.path(rmd_params$out_path, "deseq_diff")
 
 if (rmd_params$out_path != "") {
-  paste0(
-    "You set the output file path to ",
-    out_path_de_files
-  ) %>%
-    message()
+  glue::glue("You set the output file path to {out_path_de_files}") %>%  message()
   # Create the folder
   dir.create(out_path_de_files)
   # Save csv
   if (rmd_params$save_csv) {
     # Get proper path
-    csv_path <- file.path(
-      out_path_de_files,
-      "deseq2_diff.csv"
-    )
+    csv_path <- file.path(out_path_de_files, "deseq2_diff.csv")
     # Print status message
-    paste0(
-      "Save CSV file to ",
-      csv_path
-    ) %>%
-      message()
+    glue::glue("Save CSV file to {csv_path}") %>% message()  
     # Save CSV
     readr::write_csv(
       x = deseq_result_frame,
@@ -360,45 +329,30 @@ if (rmd_params$out_path != "") {
   # Save Excel
   if (rmd_params$save_excel) {
     # Get proper path
-    excel_path <- file.path(
-      out_path_de_files,
-      "deseq2_diff.xlsx"
-    )
+    excel_path <- file.path(out_path_de_files, "deseq2_diff.xlsx")
     # Print status message
-    paste0(
-      "Save Excel file to ",
-      excel_path
-    ) %>%
-      message()
+    glue::glue("Save Excel file to {excel_path}") %>% message()
     # Save Excel
-    WriteXLS::WriteXLS(
-      x = deseq_result_frame,
-      ExcelFileName = excel_path,
-      AdjWidth = TRUE,
-      AutoFilter = TRUE,
-      BoldHeaderRow = TRUE,
-      FreezeRow = 1,
-      SheetNames = c("deseq2_diff")
-    )
+    rmyknife::write_xls(dat = deseq_result_frame, ExcelFileName = excel_path)
   }
   # Save RDS
   if (rmd_params$save_deseq_rds) {
-    # Get proper path
-    rds_path <- file.path(
-      out_path_de_files,
-      "deseq2_diff.rds"
-    )
-    # Print status message
-    paste0(
-      "Save Rds file to ",
-      rds_path
-    ) %>%
-      message()
-    # Save RDS
-    saveRDS(
-      object = deseq_result,
-      file = rds_path
-    )
+    # deseq2_diff
+    deseq2_diff_path <- file.path(out_path_de_files, "deseq2_diff.rds")
+    glue::glue("Save deseq2_diff file to {deseq2_diff_path}") %>% message()
+    saveRDS(object = deseq_result, file = deseq2_diff_path)
+    # col_data
+    col_data_path <- file.path(out_path_de_files, "col_data.rds")
+    glue::glue("Save col_data file to {col_data_path}") %>% message()
+    saveRDS(object = deseq_result, file = col_data_path)
+    # count_data
+    count_data_path <- file.path(out_path_de_files, "count_data.csv")
+    glue::glue("Save count_data file to {count_data_path}") %>% message()
+    readr::write_csv(x = deseq_result, file = count_data_path)
+    # count_data_normalized
+    count_data_normalized_path <- file.path(out_path_de_files, "count_data_normalized.csv")
+    glue::glue("Save count_data_normalized file to {count_data_normalized_path}") %>% message()
+    readr::write_csv(x = deseq_result, file = count_data_normalized_path)
   }
 }
 ```
@@ -431,8 +385,7 @@ pca_plot <- pca_data %>%
   ggplot2::geom_point() +
   ggplot2::ggtitle("Principal Component Analysis") +
   ggplot2::xlab(paste0("Principal Component 1 (", round(attr(pca_data, "percentVar")[1] * 100), "% variance explained)")) +
-  ggplot2::ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)")) +
-  ggthemes::theme_tufte(base_family = "sans")
+  ggplot2::ylab(paste0("Principal Component 2 (", round(attr(pca_data, "percentVar")[2] * 100), "% variance explained)"))
 
 pca_plot
 ```
@@ -726,7 +679,6 @@ deseq_result_frame %>%
       ggplot2::xlab(expression(log[2](fc))) +
       ggplot2::ylab(expression(-log[10](adjusted ~ p ~ value))) +
       ggplot2::labs(colour = "Significance") +
-      ggplot2::theme_minimal() +
       ggrepel::geom_text_repel(
         data = . %>%
           dplyr::arrange(padj) %>%

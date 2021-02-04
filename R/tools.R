@@ -4,8 +4,6 @@
 #' @import rmarkdown magrittr
 #'
 #' @param path_config_json Path to experiment design json file
-#' @param path_salmon_counts Path to salmon counts file
-#' @param path_salmon_tpm Path to salmon counts file
 #' @param out_path Path for output
 #' @param count_data Count data. Replaces path_salmon_counts
 #' @param count_data_normalized Normalized count dataframe. Replaces path_salmon_tpm
@@ -19,8 +17,6 @@
 #' @param minimum_padj Minimum padj value for a gene to be considered differentially expressed
 run_differential_expression <- function(
   path_config_json,
-  path_salmon_counts = "",
-  path_salmon_tpm = "",
   out_path,
   count_data = NULL,
   count_data_normalized = NULL,
@@ -55,8 +51,6 @@ run_differential_expression <- function(
     system.file("rmd/differential_expression.Rmd", package = "nfRNAseqDESeq2"),
     params = list(
       path_config_json = path_config_json,
-      path_salmon_counts = path_salmon_counts,
-      path_salmon_tpm = path_salmon_tpm,
       out_path = out_path,
       count_data = count_data,
       count_data_normalized = count_data_normalized,

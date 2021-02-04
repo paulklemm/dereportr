@@ -6,8 +6,6 @@
 \usage{
 run_differential_expression(
   path_config_json,
-  path_salmon_counts = "",
-  path_salmon_tpm = "",
   out_path,
   count_data = NULL,
   count_data_normalized = NULL,
@@ -23,10 +21,6 @@ run_differential_expression(
 }
 \arguments{
 \item{path_config_json}{Path to experiment design json file}
-
-\item{path_salmon_counts}{Path to salmon counts file}
-
-\item{path_salmon_tpm}{Path to salmon counts file}
 
 \item{out_path}{Path for output}
 
