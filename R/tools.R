@@ -119,7 +119,6 @@ goterm_analysis_of_all_comparisons <- function(
         dplyr::filter(comparison == current_comparison) %>%
         # Create data frame compatible with mygo
         dplyr::rename(
-          ensembl_gene_id = row,
           q_value = padj,
           fc = log2FoldChange,
           Symbol = external_gene_name
