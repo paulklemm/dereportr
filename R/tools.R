@@ -7,8 +7,6 @@
 #' @param out_path Path for output
 #' @param count_data Count data. Replaces path_salmon_counts
 #' @param count_data_normalized Normalized count dataframe. Replaces path_salmon_tpm
-#' @param save_csv Output differentially expressed entries as csv file
-#' @param save_excel Output differentially expressed entries as excel file
 #' @param save_intermediate Output intermediate files that can be used for debugging/custom analyses
 #' @param biomart_attributes Attach biomart attributes to the resulting table
 #' @param ensembl_version Specify Ensembl version. Only required if biomart_attributes are defined
@@ -21,8 +19,6 @@ run_differential_expression <- function(
   out_path,
   count_data,
   count_data_normalized,
-  save_csv = TRUE,
-  save_excel = TRUE,
   save_intermediate = TRUE,
   ensembl_version = 101,
   biomart_attributes = "none",
@@ -53,8 +49,6 @@ run_differential_expression <- function(
       out_path = out_path,
       count_data = count_data,
       count_data_normalized = count_data_normalized,
-      save_csv = save_csv,
-      save_excel = save_excel,
       save_intermediate = save_intermediate,
       biomart_attributes = biomart_attributes,
       ensembl_version = ensembl_version,

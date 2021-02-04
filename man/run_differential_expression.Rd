@@ -7,10 +7,8 @@
 run_differential_expression(
   path_config_json,
   out_path,
-  count_data = NULL,
-  count_data_normalized = NULL,
-  save_csv = TRUE,
-  save_excel = TRUE,
+  count_data,
+  count_data_normalized,
   save_intermediate = TRUE,
   ensembl_version = 101,
   biomart_attributes = "none",
@@ -28,10 +26,6 @@ run_differential_expression(
 \item{count_data}{Count data. Replaces path_salmon_counts}
 
 \item{count_data_normalized}{Normalized count dataframe. Replaces path_salmon_tpm}
-
-\item{save_csv}{Output differentially expressed entries as csv file}
-
-\item{save_excel}{Output differentially expressed entries as excel file}
 
 \item{save_intermediate}{Output intermediate files that can be used for debugging/custom analyses}
 
