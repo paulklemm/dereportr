@@ -201,7 +201,7 @@ if (!is.na(rmd_params$biotypes_filter)) {
 ```{r remove-mincount}
 
 # Filter out genes where no treatment contains more than minimum_gene_count on average
-entries_satisfying_mincount <-
+entries_satisfying_mincount_and_biotypes <-
   count_data_normalized %>%
   # First, filter for the ones might already be filtered by biotype
   dplyr::filter(gene_id %in% count_data$gene_id) %>%
@@ -217,10 +217,10 @@ entries_satisfying_mincount <-
   dplyr::pull()
 
 count_data <- count_data %>%
-  dplyr::filter(gene_id %in% entries_satisfying_mincount)
+  dplyr::filter(gene_id %in% entries_satisfying_mincount_and_biotypes)
 ```
 
-We work with `r length(entries_satisfying_mincount)` genes where at least one treatment has a mean gene normalized count expression of `r rmd_params$minimum_count`.
+We work with `r length(entries_satisfying_mincount_and_biotypes)` genes where at least one treatment has a mean gene normalized count expression of `r rmd_params$minimum_count` (this is minimum count and biotype filtering combined).
 
 Here are the top entries of the raw and normalized count table:
 
