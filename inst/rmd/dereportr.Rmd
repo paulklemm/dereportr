@@ -1,5 +1,5 @@
 ---
-title: "DEReportR Differential Gene Expression Analysis"
+title: "🧬 Differential Gene Expression Analysis"
 output:
   html_document:
     code_folding: hide
@@ -12,7 +12,7 @@ params:
   out_path: ""
   save_intermediate: TRUE
   ensembl_version: 100
-  biomart_attributes: "none"
+  biomart_attributes: !r NA
   minimum_count: 0
   minimum_padj: 0.05
   biotypes_filter: !r NA
@@ -150,9 +150,11 @@ undefined_samples <- col_data %>%
 
 undefined_samples$id %>%
   purrr::walk(function(na_sample) {
-    glue::glue("Removed sample '{na_sample}'' because it was assigned to no treatment group in the config") %>%
-      warning()
+    glue::glue("Removed '{na_sample}'' because it was assigned to no treatment group in the config") %>%
+      message()
     count_data <<- count_data %>%
+      dplyr::select(-dplyr::contains(na_sample))
+    count_data_normalized <<- count_data %>%
       dplyr::select(-dplyr::contains(na_sample))
   })
 
@@ -181,7 +183,7 @@ if (!is.na(rmd_params$biotypes_filter)) {
     count_data %>%
     rmyknife::attach_biomart(
       attributes = "gene_biotype",
-      ensembl_id_var = "row",
+      ensembl_id_var = "gene_id",
       ensembl_version = rmd_params$ensembl_version,
       verbose = FALSE
     ) %>%
@@ -206,7 +208,7 @@ entries_satisfying_mincount <- count_data_normalized %>%
   # Filter samples that are not associated with any treatments
   dplyr::filter(!is.na(treatment)) %>%
   dplyr::group_by(gene_id, treatment) %>%
-  dplyr::summarise(mean_count_normalized = mean(count_normalized)) %>%
+  dplyr::summarise(mean_count_normalized = mean(count_normalized), .groups = "drop_last") %>%
   dplyr::filter(mean_count_normalized >= rmd_params$minimum_count) %>%
   dplyr::select(gene_id) %>%
   dplyr::pull()
@@ -262,7 +264,7 @@ deseq_result_frame <- comparisons %>%
     paste0(
       "Get differential expression for comparison ",
       comparison_name,
-      ", group a: ",
+      ", group_a: ",
       comparison$group_a,
       ", group_b: ",
       comparison$group_b
@@ -288,16 +290,10 @@ deseq_result_frame <- comparisons %>%
 
 Attach biomart parameters.
 
-```{r attach-biomart}
+```{r attach-biomart, warning = FALSE, message = FALSE}
 # For some reason caching this creates problems with the attached deseq_result frame
 # To avoid this, we created a memoized version of the attach_biomart function
-if (rmd_params$biomart_attributes != "none") {
-  paste0(
-    "Attaching biomart variables ",
-    rmd_params$biomart_attributes
-  ) %>%
-    message()
-
+if (!is.na(rmd_params$biomart_attributes)) {
   deseq_result_frame <-
     deseq_result_frame %>%
     rmyknife::attach_biomart(
