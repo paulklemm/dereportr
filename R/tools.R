@@ -19,8 +19,8 @@
 run_differential_expression <- function(
   path_config_json,
   out_path,
-  count_data = NULL,
-  count_data_normalized = NULL,
+  count_data,
+  count_data_normalized,
   save_csv = TRUE,
   save_excel = TRUE,
   save_intermediate = TRUE,
@@ -31,9 +31,6 @@ run_differential_expression <- function(
   minimum_padj = 0.05,
   biotypes_filter = "protein_coding"
 ){
-  if (path_salmon_counts == "" & is.null(count_data)) {
-    stop("You have to either specify 'path_salmon_counts' or 'count_data'")
-  }
   # Be sure the output path exists
   if (!dir.exists(out_path)) {
     paste0(
