@@ -104,6 +104,7 @@ rmarkdown::render(
 - *2021-02-04*
   - Drop support for providing flat files, require to provide data frames
   - Change name do `dereportr`
+  - Bump version to `0.3.0`
 - *2020-11-20*
   - Add `count_normalized` and `path_salmon_tpm` variables that allow for proper filtering of minimum expressed genes based on counts normalized on library size
   - Bump version to `0.2.0`
