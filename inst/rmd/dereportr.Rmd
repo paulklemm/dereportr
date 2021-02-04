@@ -201,7 +201,10 @@ if (!is.na(rmd_params$biotypes_filter)) {
 ```{r remove-mincount}
 
 # Filter out genes where no treatment contains more than minimum_gene_count on average
-entries_satisfying_mincount <- count_data_normalized %>%
+entries_satisfying_mincount <-
+  count_data_normalized %>%
+  # First, filter for the ones might already be filtered by biotype
+  dplyr::filter(gene_id %in% count_data$gene_id) %>%
   tidyr::pivot_longer(-gene_id, values_to = "count_normalized") %>%
   # Attach treatment group
   dplyr::left_join(col_data, by = c("name" = "id")) %>%
