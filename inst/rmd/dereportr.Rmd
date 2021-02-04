@@ -181,6 +181,7 @@ if (!is.na(rmd_params$biotypes_filter)) {
     count_data %>%
     rmyknife::attach_biomart(
       attributes = "gene_biotype",
+      ensembl_id_var = "row",
       ensembl_version = rmd_params$ensembl_version,
       verbose = FALSE
     ) %>%
