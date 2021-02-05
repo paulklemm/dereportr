@@ -1,3 +1,5 @@
+- `goterm_analysis_of_all_comparisons` can now run up- and down-regulated genes separateley
+
 # dereportr 0.3.0
 
 - Drop support for providing flat files, require to provide data frames

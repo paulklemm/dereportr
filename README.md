@@ -101,6 +101,8 @@ rmarkdown::render(
 
 ## ⏳ History
 
+- *2021-02-05*
+  - `goterm_analysis_of_all_comparisons` can now run up- and down-regulated genes separateley
 - *2021-02-04*
   - Drop support for providing flat files, require to provide data frames
   - Change name do `dereportr`

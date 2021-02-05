@@ -10,13 +10,16 @@ goterm_analysis_of_all_comparisons(
   simplify_ontologies = TRUE,
   significance_cutoff = 0.05,
   do_gse = TRUE,
-  debug = FALSE
+  debug = FALSE,
+  up_and_down_separate = TRUE,
+  min_logfc = 0
 )
 }
 \arguments{
 \item{deseq2_diff_path}{Path to deseq2_diff.csv created by dereportr}
 
-\item{out_path}{Path to output files}
+\item{out_path}{Output path for the run
+Helper function to create directory if it doesn't already exist}
 
 \item{simplify_ontologies}{See mygo::createHTMLReport}
 
@@ -25,6 +28,12 @@ goterm_analysis_of_all_comparisons(
 \item{do_gse}{See mygo::createHTMLReport}
 
 \item{debug}{Save dataframe passed to mygo to allow for debugging}
+
+\item{up_and_down_separate}{Create a GO-term analysis not only for all DE genes, but also for up- and down-regulated ones}
+
+\item{min_logfc}{Minimum log2 fold-change for a gene to be differentially up- or down-regulated}
+
+\item{deseq_output}{DESeq2 output table renamed to comply with mygo standards}
 }
 \description{
 Create GO-term analysis for all comparisons of deseq2_diff.csv (created by dereportr)
@@ -34,4 +43,5 @@ Create GO-term analysis for all comparisons of deseq2_diff.csv (created by derep
     deseq2_diff_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/DESeq2/deseq2_diff.csv",
     out_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/goterm-analysis"
   )
+Helper function for running mygo
 }

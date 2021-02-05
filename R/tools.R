@@ -77,6 +77,8 @@ run_differential_expression <- function(
 #' @param significance_cutoff Significance cutoff for both adjusted q-value and GO-term analysis
 #' @param do_gse See mygo::createHTMLReport
 #' @param debug Save dataframe passed to mygo to allow for debugging
+#' @param up_and_down_separate Create a GO-term analysis not only for all DE genes, but also for up- and down-regulated ones
+#' @param min_logfc Minimum log2 fold-change for a gene to be differentially up- or down-regulated
 #' @examples
 #'   goterm_analysis_of_all_comparisons(
 #'     deseq2_diff_path = "/beegfs/scratch/bruening_scratch/pklemm/2019-11-sinika-rnaseq/analysis/results/DESeq2/deseq2_diff.csv",
@@ -88,7 +90,9 @@ goterm_analysis_of_all_comparisons <- function(
   simplify_ontologies = TRUE,
   significance_cutoff = 0.05,
   do_gse = TRUE,
-  debug = FALSE
+  debug = FALSE,
+  up_and_down_separate = TRUE,
+  min_logfc = 0
 ) {
   # Read in DESeq2 result file
   deseq_output <- readr::read_csv(deseq2_diff_path)
@@ -99,22 +103,67 @@ goterm_analysis_of_all_comparisons <- function(
     dplyr::pull() %>%
     # Iterate over all comparisons
     purrr::walk(function(current_comparison) {
+      #' Helper function for running mygo
+      #' @param deseq_output DESeq2 output table renamed to comply with mygo standards
+      #' @param out_path Output path for the run
+      run_mygo_helper <- function(deseq_output, mygo_out_path) {
+        if (deseq_output %>% dplyr::filter(q_value <= 0.05) %>% nrow() > 0) {
+          if (debug) {
+            # Print status message
+            message(paste0("Debug mode, write output to ", mygo_out_path))
+            # Write debug output
+            deseq_output %>%
+              readr::write_csv(
+                file.path(mygo_out_path, "deseq_output_for_mygo_debug.csv")
+              )
+          }
+          # Start GO-term analysis
+          deseq_output %>%
+            mygo::createHTMLReport(
+              output_path = mygo_out_path,
+              simplify_ontologies = simplify_ontologies,
+              significance_cutoff = significance_cutoff,
+              do_gse = do_gse,
+              # Always use background
+              use_background = TRUE
+          )
+        } else {
+          # Show warning and continue
+          paste0(
+            "No differentially expressed entries when filtering for '",
+            current_comparison,
+            "'"
+          ) %>%
+            warning()
+        }
+      }
+      #' Helper function to create directory if it doesn't already exist
+      create_dir <- function(directory)
+      if (!dir.exists(directory)) {
+        paste0("Directory '", directory, "' does not exist, I will create it.") %>%
+          message()
+        dir.create(directory, recursive = TRUE)
+      }
+
       # Check if path for current comparison exists. If not, create it
       out_path_current_comparison <- file.path(out_path, current_comparison)
-      if (!dir.exists(out_path_current_comparison)) {
-        paste0("Directory '", out_path_current_comparison, "' does not exist, I will create it.") %>%
-          warning()
-        dir.create(out_path_current_comparison, recursive = TRUE)
+      out_path_current_comparison_up <- glue::glue("{out_path_current_comparison}_up")
+      out_path_current_comparison_down <- glue::glue("{out_path_current_comparison}_down")
+      # Create directories
+      create_dir(out_path_current_comparison)
+      if (up_and_down_separate) {
+        create_dir(out_path_current_comparison_up)
+        create_dir(out_path_current_comparison_down)
       }
+      
       # Print out status message for current analysis
-      paste0(
-        "Conducting GO-term analysis for comparison '",
-        current_comparison,
-        "', output folder: '",
-        out_path_current_comparison, "'"
-      ) %>%
+      glue::glue("Conducting GO-term analysis for comparison '{current_comparison}', output folder: '{out_path_current_comparison}'") %>%
         message()
-      deseq_output %<>%
+      
+      # Get dataframe for current comparison and rename it to comply with
+      # mygo standard requirements
+      deseq_out_comparison <-
+        deseq_output %>%
         # Filter for current comparison
         dplyr::filter(comparison == current_comparison) %>%
         # Create data frame compatible with mygo
@@ -125,37 +174,21 @@ goterm_analysis_of_all_comparisons <- function(
         ) %>%
         dplyr::select(ensembl_gene_id, q_value, fc, Symbol) %>%
         # Filter out NA values
-        dplyr::filter(!is.na(q_value)) %>%
-        # Check if we have enough differentially expressed genes
-        (function(deseq_output) {
-          if (deseq_output %>% dplyr::filter(q_value <= 0.05) %>% nrow() > 0) {
-            if (debug) {
-              # Print status message
-              message(paste0("Debug mode, write output to ", out_path_current_comparison))
-              # Write debug output
-              deseq_output %>%
-                readr::write_csv(
-                  file.path(out_path_current_comparison, "deseq_output_for_mygo_debug.csv")
-                )
-            }
-            # Start GO-term analysis
-            deseq_output %>% mygo::createHTMLReport(
-              output_path = out_path_current_comparison,
-              simplify_ontologies = simplify_ontologies,
-              significance_cutoff = significance_cutoff,
-              do_gse = do_gse,
-              # Always use background
-              use_background = TRUE
-            )
-          } else {
-            # Show warning and continue
-            paste0(
-              "No differentially expressed entries when filtering for '",
-              current_comparison,
-              "'"
-            ) %>%
-              warning()
-          }
-        })
+        dplyr::filter(!is.na(q_value))
+      
+      # Run all genes
+      deseq_out_comparison %>%
+        dplyr::filter(fc > min_logfc | fc < -min_logfc) %>%
+        run_mygo_helper(out_path_current_comparison)
+      if (up_and_down_separate) {
+        # Up-regulation
+        deseq_out_comparison %>%
+          dplyr::filter(fc > min_logfc) %>%
+          run_mygo_helper(out_path_current_comparison_up)
+        # Down-regulation
+        deseq_out_comparison %>%
+          dplyr::filter(fc < -min_logfc) %>%
+          run_mygo_helper(out_path_current_comparison_down)
+      }
     })
 }
