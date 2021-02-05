@@ -214,6 +214,8 @@ entries_satisfying_mincount_and_biotypes <-
   dplyr::summarise(mean_count_normalized = mean(count_normalized), .groups = "drop_last") %>%
   dplyr::filter(mean_count_normalized >= rmd_params$minimum_count) %>%
   dplyr::select(gene_id) %>%
+  # Remove duplicates
+  dplyr::distinct() %>%
   dplyr::pull()
 
 count_data <- count_data %>%
