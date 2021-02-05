@@ -172,7 +172,7 @@ count_data <-
 
 ```
 
-```{r remove-biotypes}
+```{r remove-biotypes, warning = FALSE, message = FALSE}
 
 # Code from trapdiff
 # Default report message.
