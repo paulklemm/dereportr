@@ -180,6 +180,7 @@ goterm_analysis_of_all_comparisons <- function(
       deseq_out_comparison %>%
         dplyr::filter(fc > min_logfc | fc < -min_logfc) %>%
         run_mygo_helper(out_path_current_comparison)
+      # Run up-and down-regulated genes
       if (up_and_down_separate) {
         # Up-regulation
         deseq_out_comparison %>%
