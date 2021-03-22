@@ -446,6 +446,8 @@ There are `r deseq_result_frame %>% tibble::as_tibble() %>% dplyr::filter(padj <
 
 ### DE genes table
 
+Differentially expressed genes, all values rounded to 4 floating point decimals.
+
 ```{r print-de-entries}
 
 deseq_result_frame %>%
@@ -455,6 +457,16 @@ deseq_result_frame %>%
   }) %>%
   rmyknife::dt_datatable()
 ```
+
+<details>
+<summary>Unfiltered DESeq2 table output without rounding</summary>
+
+```{r print-table-no-rounding}
+rmyknife::dt_datatable(deseq_result_frame)
+```
+
+</details>
+
 
 ## DE Genes Plots
 
