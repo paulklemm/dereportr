@@ -101,6 +101,9 @@ rmarkdown::render(
 
 ## ⏳ History
 
+- *2021-03-22*
+  - Add full DESeq2 result table to "Differentially Expressed (DE) Genes" tab
+  - Bump version to `0.3.1`
 - *2021-02-05*
   - `goterm_analysis_of_all_comparisons` can now run up- and down-regulated genes separateley
 - *2021-02-04*
