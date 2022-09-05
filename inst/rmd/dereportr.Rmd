@@ -163,15 +163,22 @@ undefined_samples <- col_data %>%
     is.na(treatment)
   )
 
-undefined_samples$id %>%
-  purrr::walk(function(na_sample) {
-    glue::glue("Removed '{na_sample}'' because it was assigned to no treatment group in the config") %>%
-      message()
-    count_data <<- count_data %>%
-      dplyr::select(-dplyr::contains(na_sample))
-    count_data_normalized <<- count_data %>%
-      dplyr::select(-dplyr::contains(na_sample))
-  })
+# undefined_samples$id %>%
+#   purrr::walk(function(na_sample) {
+#     glue::glue("Removed '{na_sample}'' because it was assigned to no treatment group in the config") %>%
+#       message()
+#     count_data <<- count_data %>%
+#       dplyr::select(-dplyr::contains(na_sample))
+#     count_data_normalized <<- count_data_normalized %>%
+#       dplyr::select(-dplyr::contains(na_sample))
+#   })
+
+count_data <-
+  count_data %>%
+  dplyr::select(undefined_samples$id)
+count_data_normalized <-
+  count_data_normalized %>%
+  dplyr::select(-undefined_samples$id)
 
 col_data <-
   col_data %>%
