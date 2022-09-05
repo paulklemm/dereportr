@@ -175,7 +175,7 @@ undefined_samples <- col_data %>%
 
 count_data <-
   count_data %>%
-  dplyr::select(undefined_samples$id)
+  dplyr::select(-undefined_samples$id)
 count_data_normalized <-
   count_data_normalized %>%
   dplyr::select(-undefined_samples$id)
