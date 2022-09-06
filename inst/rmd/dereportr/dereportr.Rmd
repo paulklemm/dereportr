@@ -330,6 +330,8 @@ if (rmd_params$out_path != "") {
   glue::glue("Save CSV file to {csv_path}") %>% message()
   readr::write_csv(x = deseq_result_frame, file = csv_path)
   # DESeq2 normalized counts
+  deseq_normalized_path <- paste0(out_path_intermediates, "deseq_normalized_counts.csv.gz")
+  glue::glue("Save DESeq2 normalized counts file to {deseq_normalized_path}") %>% message()
   deseq_result %>%
     DESeq2::counts(normalized = TRUE) %>%
     rmyknife::deseq2_result_to_tibble() %>%
@@ -341,7 +343,7 @@ if (rmd_params$out_path != "") {
     # Attach external_gene_name
     rmyknife::attach_biomart(attributes = "external_gene_name", ensembl_version = rmd_params$ensembl_version) %>%
     dplyr::select(ensembl_gene_id, external_gene_name, dplyr::everything()) %>%
-    readr::write_csv(file = paste0(out_path_intermediates, "/deseq_normalized_counts.csv.gz"))
+    readr::write_csv(file = deseq_normalized_path)
   # Save Excel
   excel_path <- file.path(out_path_results, "deseq2_diff.xlsx")
   glue::glue("Save Excel file to {excel_path}") %>% message()
