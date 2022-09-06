@@ -43,7 +43,7 @@ run_differential_expression <- function(
   }
   # Render command with all parameters
   rmarkdown::render(
-    system.file("rmd/dereportr.Rmd", package = "dereportr"),
+    system.file("rmd/dereportr/dereportr.Rmd", package = "dereportr"),
     params = list(
       path_config_json = path_config_json,
       out_path = out_path,

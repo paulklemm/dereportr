@@ -7,6 +7,7 @@
 - [🏀 Example](#🏀-example)
   - [Sample group assignment json file](#sample-group-assignment-json-file)
   - [Rendering the analysis document](#rendering-the-analysis-document)
+- [Shiny](#shiny)
 - [⏳ History](#⏳-history)
 
 <!-- /TOC -->
@@ -99,13 +100,20 @@ rmarkdown::render(
 )
 ```
 
+## Shiny
+
+Dereportr also provides a shiny app that allows for interactively analyzing the dereportr output.
+Find the app with `inst/rmd/dereportr_shiny/app.R`. You can send the path via the URL, e.g. `http://127.0.0.1:6252/?dereportrpath=/beegfs/scratch/bruening_scratch/pklemm/2022-08-ecem-rnaseq/release/DESeq2/cortex/deseq_diff`
+
 ## ⏳ History
 
+- *2022-09-06*
+  - Add Shiny App for interactively analyzing the dereportr output
 - *2021-03-22*
   - Add full DESeq2 result table to "Differentially Expressed (DE) Genes" tab
   - Bump version to `0.3.1`
 - *2021-02-05*
-  - `goterm_analysis_of_all_comparisons` can now run up- and down-regulated genes separateley
+  - `goterm_analysis_of_all_comparisons` can now run up- and down-regulated genes separately
 - *2021-02-04*
   - Drop support for providing flat files, require to provide data frames
   - Change name do `dereportr`

@@ -1,6 +1,6 @@
 Package: dereportr
 Title: Differential Gene Expression Analysis using DESeq2
-Version: 0.3.3
+Version: 0.4.0
 Authors@R: 
     person(given = "Paul",
         family = "Klemm",

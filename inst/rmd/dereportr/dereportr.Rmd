@@ -334,7 +334,8 @@ if (rmd_params$out_path != "") {
     DESeq2::counts(normalized = TRUE) %>%
     rmyknife::deseq2_result_to_tibble() %>%
     tidyr::pivot_longer(-ensembl_gene_id, names_to = "sample", values_to = "count") %>%
-    dplyr::mutate(sample_id = stringr::str_extract(sample, pattern = "(\\d)+$")) %>%
+    # dplyr::mutate(sample_id = stringr::str_extract(sample, pattern = "(\\d)+$")) %>%
+    dplyr::mutate(sample_id = sample) %>%
     # Attach col_data
     dplyr::left_join(col_data, by = c("sample" = "id")) %>%
     # Attach external_gene_name
