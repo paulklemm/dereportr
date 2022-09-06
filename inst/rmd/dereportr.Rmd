@@ -29,7 +29,7 @@ Here is what you should do.
 ```{r setup, results = "hide", message = FALSE, warning = FALSE}
 
 library(magrittr)
-suppressWarnings(library(rmyknife))
+library(rmyknife)
 
 # https://stackoverflow.com/questions/27992239/knitr-include-figures-in-report-and-output-figures-to-separate-files#comment71370705_27996644
 knitr::opts_chunk$set(
@@ -41,23 +41,7 @@ knitr::opts_chunk$set(
   )
 )
 
-ggplot2::theme_set(
-  ggplot2::theme_minimal(
-    base_size = 12
-  )
-)
-ggplot2::theme_update(
-  axis.ticks = ggplot2::element_line(color = "grey92"),
-  axis.ticks.length = ggplot2::unit(.5, "lines"),
-  panel.grid.minor = ggplot2::element_blank(),
-  legend.title = ggplot2::element_text(size = 12),
-  legend.text = ggplot2::element_text(color = "grey30"),
-  plot.title = ggplot2::element_text(size = 18, face = "bold"),
-  plot.subtitle = ggplot2::element_text(size = 12, color = "grey30"),
-  plot.caption = ggplot2::element_text(size = 9, margin = ggplot2::margin(t = 15)),
-  plot.title.position = 'plot'
-)
-
+rmyknife::set_ggplot_defaults()
 rmd_params <- params
 
 ```
@@ -163,16 +147,6 @@ undefined_samples <- col_data %>%
     is.na(treatment)
   )
 
-# undefined_samples$id %>%
-#   purrr::walk(function(na_sample) {
-#     glue::glue("Removed '{na_sample}'' because it was assigned to no treatment group in the config") %>%
-#       message()
-#     count_data <<- count_data %>%
-#       dplyr::select(-dplyr::contains(na_sample))
-#     count_data_normalized <<- count_data_normalized %>%
-#       dplyr::select(-dplyr::contains(na_sample))
-#   })
-
 count_data <-
   count_data %>%
   dplyr::select(-undefined_samples$id)
@@ -186,7 +160,7 @@ col_data <-
   # Convert treatment variable to factor as required by DESeq2
   dplyr::mutate(treatment = as.factor(treatment))
 
-# Convert counts to integer to comply with DEseq2 standards
+# Convert counts to integer to comply with DESeq2 standards
 count_data <-
   count_data %>%
   dplyr::mutate_if(is.double, round) %>%
@@ -240,7 +214,12 @@ entries_satisfying_mincount_and_biotypes <-
   dplyr::distinct() %>%
   dplyr::pull()
 
-count_data <- count_data %>%
+# Filter results
+count_data <-
+  count_data %>%
+  dplyr::filter(gene_id %in% entries_satisfying_mincount_and_biotypes)
+count_data_normalized <-
+  count_data_normalized %>%
   dplyr::filter(gene_id %in% entries_satisfying_mincount_and_biotypes)
 ```
 
@@ -274,19 +253,21 @@ comparisons %>% print()
 ### Create DESeq2 data and run differential expression analysis
 
 ```{r create-deseq2-data}
-deseq_data <- DESeq2::DESeqDataSetFromMatrix(
-  countData = count_data %>% as.data.frame(),
-  colData = col_data,
-  design = ~treatment,
-  tidy = TRUE
-)
+deseq_data <-
+  DESeq2::DESeqDataSetFromMatrix(
+    countData = count_data %>% as.data.frame(),
+    colData = col_data,
+    design = ~treatment,
+    tidy = TRUE
+  )
 ```
 
 ```{r run-differential-expression-analysis}
 
 deseq_result <- DESeq2::DESeq(deseq_data)
 
-deseq_result_frame <- comparisons %>%
+deseq_result_frame <-
+  comparisons %>%
   purrr::imap(function(comparison, comparison_name) {
     paste0(
       "Get differential expression for comparison ",
@@ -511,7 +492,8 @@ Heat map of top-regulated genes accross all samples. This outlines the sample si
 
 ```{r heat-map-top-n-counts, warning = FALSE}
 
-deseq_counts <- deseq_result %>%
+deseq_counts <-
+  deseq_result %>%
   DESeq2::counts(
     normalized = TRUE,
     replaced = FALSE
