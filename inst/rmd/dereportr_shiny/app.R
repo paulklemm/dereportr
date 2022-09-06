@@ -3,7 +3,7 @@ library(shinydashboard)
 library(plotly)
 library(rmyknife)
 
-rmyknife::set_ggplot_defaults()
+# rmyknife::set_ggplot_defaults()
 
 ui <-
   dashboardPage(
@@ -182,7 +182,10 @@ server <- function(input, output, session) {
           stringr::str_extract(pattern = "^(.)+_") %>%
           stringr::str_remove("_")
       ) +
-      ggplot2::facet_grid(~comparison)
+      ggplot2::facet_grid(
+        .~comparison,
+        scales = "free"
+      )
   })
 
   output$plot_group_counts <- shiny::renderPlot({
@@ -210,7 +213,10 @@ server <- function(input, output, session) {
       ggplot2::ggtitle(
         "DESeq2 Counts per condition"
       ) +
-      ggplot2::facet_grid(~gene_id)
+      ggplot2::facet_grid(
+        external_gene_name~.,
+        scales = "free"
+      )
   })
 }
 
