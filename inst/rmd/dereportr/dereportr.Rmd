@@ -330,7 +330,7 @@ if (rmd_params$out_path != "") {
   glue::glue("Save CSV file to {csv_path}") %>% message()
   readr::write_csv(x = deseq_result_frame, file = csv_path)
   # DESeq2 normalized counts
-  deseq_normalized_path <- paste0(out_path_intermediates, "deseq_normalized_counts.csv.gz")
+  deseq_normalized_path <- file.path(out_path_intermediates, "deseq_normalized_counts.csv.gz")
   glue::glue("Save DESeq2 normalized counts file to {deseq_normalized_path}") %>% message()
   deseq_result %>%
     DESeq2::counts(normalized = TRUE) %>%
