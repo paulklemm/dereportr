@@ -329,21 +329,6 @@ if (rmd_params$out_path != "") {
   csv_path <- file.path(out_path_results, "deseq2_diff.csv")
   glue::glue("Save CSV file to {csv_path}") %>% message()
   readr::write_csv(x = deseq_result_frame, file = csv_path)
-  # DESeq2 normalized counts
-  deseq_normalized_path <- file.path(out_path_intermediates, "deseq_normalized_counts.csv.gz")
-  glue::glue("Save DESeq2 normalized counts file to {deseq_normalized_path}") %>% message()
-  deseq_result %>%
-    DESeq2::counts(normalized = TRUE) %>%
-    rmyknife::deseq2_result_to_tibble() %>%
-    tidyr::pivot_longer(-ensembl_gene_id, names_to = "sample", values_to = "count") %>%
-    # dplyr::mutate(sample_id = stringr::str_extract(sample, pattern = "(\\d)+$")) %>%
-    dplyr::mutate(sample_id = sample) %>%
-    # Attach col_data
-    dplyr::left_join(col_data, by = c("sample" = "id")) %>%
-    # Attach external_gene_name
-    rmyknife::attach_biomart(attributes = "external_gene_name", ensembl_version = rmd_params$ensembl_version) %>%
-    dplyr::select(ensembl_gene_id, external_gene_name, dplyr::everything()) %>%
-    readr::write_csv(file = deseq_normalized_path)
   # Save Excel
   excel_path <- file.path(out_path_results, "deseq2_diff.xlsx")
   glue::glue("Save Excel file to {excel_path}") %>% message()
@@ -351,22 +336,42 @@ if (rmd_params$out_path != "") {
   # Save RDS
   if (rmd_params$save_intermediate) {
     dir.create(out_path_intermediates)
+  
     # deseq2_diff
     deseq2_diff_path <- file.path(out_path_intermediates, "deseq2_diff.rds")
     glue::glue("Save deseq2_diff file to {deseq2_diff_path}") %>% message()
     saveRDS(object = deseq_result, file = deseq2_diff_path)
+  
     # col_data
     col_data_path <- file.path(out_path_intermediates, "col_data.csv")
     glue::glue("Save col_data file to {col_data_path}") %>% message()
     readr::write_csv(x = col_data, file = col_data_path)
+  
     # count_data
     count_data_path <- file.path(out_path_intermediates, "count_data.csv")
     glue::glue("Save count_data file to {count_data_path}") %>% message()
     readr::write_csv(x = count_data, file = count_data_path)
+  
     # count_data_normalized
     count_data_normalized_path <- file.path(out_path_intermediates, "count_data_normalized.csv")
     glue::glue("Save count_data_normalized file to {count_data_normalized_path}") %>% message()
     readr::write_csv(x = count_data_normalized, file = count_data_normalized_path)
+
+    # DESeq2 normalized counts
+    deseq_normalized_path <- file.path(out_path_intermediates, "deseq_normalized_counts.csv.gz")
+    glue::glue("Save DESeq2 normalized counts file to {deseq_normalized_path}") %>% message()
+    deseq_result %>%
+      DESeq2::counts(normalized = TRUE) %>%
+      rmyknife::deseq2_result_to_tibble() %>%
+      tidyr::pivot_longer(-ensembl_gene_id, names_to = "sample", values_to = "count") %>%
+      # dplyr::mutate(sample_id = stringr::str_extract(sample, pattern = "(\\d)+$")) %>%
+      dplyr::mutate(sample_id = sample) %>%
+      # Attach col_data
+      dplyr::left_join(col_data, by = c("sample" = "id")) %>%
+      # Attach external_gene_name
+      rmyknife::attach_biomart(attributes = "external_gene_name", ensembl_version = rmd_params$ensembl_version) %>%
+      dplyr::select(ensembl_gene_id, external_gene_name, dplyr::everything()) %>%
+      readr::write_csv(file = deseq_normalized_path)
   }
 }
 ```
