@@ -106,6 +106,8 @@ Find the app with `inst/rmd/dereportr_shiny/app.R`. You can send the path via th
 
 ## ⏳ History
 
+- *2023-10-09*
+  - Fix error in updated `tidyr::pivot_longer`
 - *2022-09-06*
   - Add Shiny App for interactively analyzing the dereportr output
 - *2021-03-22*

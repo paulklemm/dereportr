@@ -1,0 +1,8 @@
+{"time":"2020-01-07 10:34:02","pid":48148,"command":"attach"} 
+{"time":"2020-01-07 10:34:14","pid":48708,"command":"attach"} 
+{"time":"2020-01-07 10:42:45","pid":48708,"command":"browser","url":"http://127.0.0.1:4513/inst/rmd/differential_expression.nb.html"} 
+{"time":"2020-01-07 10:45:44","pid":54229,"command":"attach"} 
+{"time":"2020-01-07 11:04:38","pid":60979,"command":"attach"} 
+{"time":"2020-01-07 11:05:30","pid":61288,"command":"attach"} 
+{"time":"2020-01-08 20:31:12","pid":33280,"command":"attach"} 
+{"time":"2020-01-08 20:31:32","pid":33280,"command":"attach"} 

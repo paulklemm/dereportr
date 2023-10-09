@@ -508,7 +508,10 @@ deseq_counts <-
   ) %>%
   as.data.frame() %>%
   tibble::rownames_to_column("ensembl_id") %>%
-  tidyr::pivot_longer(-ensembl_id, "sample_name") %>%
+  tidyr::pivot_longer(
+    -ensembl_id,
+    names_to = "sample_name"
+  ) %>%
   dplyr::rename(count = value) %>%
   # Attach adjusted p-value
   dplyr::left_join(
